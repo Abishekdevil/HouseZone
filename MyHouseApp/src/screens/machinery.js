@@ -17,7 +17,7 @@ export default function Machinery() {
       <View style={categoryContentStyles.content}>
         <Text style={categoryContentStyles.pageTitle}>Machinery</Text>
         <Text style={categoryContentStyles.pageText}>This is the Machinery category page.</Text>
-        <Text style={categoryContentStyles.roleInfo}>Role: {role}</Text>
+        
       </View>
       
       <Footer />

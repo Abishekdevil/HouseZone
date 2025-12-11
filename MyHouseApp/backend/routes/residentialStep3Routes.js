@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { pool } from '../config/database.js';
+import upload from '../middleware/upload.js';
 
 const router = Router();
 

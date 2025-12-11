@@ -1,75 +1,50 @@
-// Logic for Step 3: Payment Details and Images
+import { Alert } from "react-native";
+
+// Step 3 Initial Data
 export const step3InitialData = {
   advanceAmount: "",
   rentAmount: "",
-<<<<<<< Updated upstream
-  images: [], // Array to hold image URIs (between 4 and 8 required)
+  images: [], // Array to store image URIs (max 7)
 };
 
-export const handleImageSelect = (formData, setFormData) => (index) => {
-  // In a real app, this would open the image picker
-  // For now, we'll just simulate adding an image
-  const newImages = [...formData.images];
-  if (index < newImages.length) {
-    // Replace existing image
-    newImages[index] = "https://via.placeholder.com/150?text=Updated+" + (index + 1);
-  } else {
-    // Add new image
-    newImages.push("https://via.placeholder.com/150?text=Image+" + (newImages.length + 1));
-  }
-  setFormData({
-    ...formData,
-    images: newImages
-=======
-  images: [], // Array to store image URIs
-};
-
+// ======================================================
+// ✅ Add Image Function
+// ======================================================
 export const handleImageSelect = (formData, setFormData) => (imageUri) => {
-  console.log('Adding image URI:', imageUri);
-  
-  // Get current images array
+  console.log("Adding image URI:", imageUri);
+
   const currentImages = formData.images || [];
-  
-  // Check if we've reached the maximum number of images (7)
+
+  // Check limit
   if (currentImages.length >= 7) {
-    console.log("Maximum number of images reached");
-    Alert.alert('Error', 'You can only add up to 7 images.');
+    Alert.alert("Error", "You can only add up to 7 images.");
     return;
   }
-  
-  // Add the new image URI to the array
+
+  // Add new image
   const updatedImages = [...currentImages, imageUri];
-  console.log('Updated images array:', updatedImages);
-  
-  // Update the form data
+  console.log("Updated images:", updatedImages);
+
   setFormData({
     ...formData,
-    images: updatedImages
->>>>>>> Stashed changes
+    images: updatedImages,
   });
 };
 
+// ======================================================
+// ✅ Remove Image Function
+// ======================================================
 export const handleRemoveImage = (formData, setFormData) => (index) => {
-<<<<<<< Updated upstream
-  const newImages = [...formData.images];
-  newImages.splice(index, 1);
-  setFormData({
-    ...formData,
-    images: newImages
-=======
-  console.log('Removing image at index:', index);
-  
-  // Get current images array
+  console.log("Removing image index:", index);
+
   const currentImages = formData.images || [];
-  
-  // Remove the image at the specified index
+
   const updatedImages = currentImages.filter((_, i) => i !== index);
-  console.log('Updated images array after removal:', updatedImages);
-  
-  // Update the form data
+
+  console.log("Updated images after remove:", updatedImages);
+
   setFormData({
     ...formData,
-    images: updatedImages
->>>>>>> Stashed changes
+    images: updatedImages,
   });
 };

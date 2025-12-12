@@ -100,22 +100,41 @@ const BaseForm = ({
     }
   };
 
-  // FINAL SUBMIT
-  const handleFormSubmit = async () => {
-    if (!validateStep1()) return setStep(1);
+  // Handle next step WITHOUT saving data
+  const handleNextStep = () => {
+    // Just move to the next step without validation or saving
+    handleNext(step, setStep, () => {});
+  };
 
+  const handlePrevStep = () => handlePrevious(step, setStep);
+
+  // Handle form submission (for final submit) - validate and save all steps
+  const handleFormSubmit = async () => {
+    // Validate step 1
+    if (!validateStep1()) {
+      setStep(1);
+      return;
+    }
+    
+    // Validate step 2 using the provided validation function
     if (validationFunction) {
       const isValid = validationFunction(formData);
-      if (!isValid) return setStep(2);
-    } else {
-      if (!validateStep2()) return setStep(2);
+      if (!isValid) {
+        setStep(2);
+        return;
+      }
     }
-
-    if (!validateStep3()) return setStep(3);
-
+    
+    // Validate step 3
+    if (!validateStep3()) {
+      setStep(3);
+      return;
+    }
+    
+    // For residential forms, save all data to the database
     if (category === "residential") {
       try {
-        // STEP 1
+        // Save step 1 data to the database
         const step1Data = {
           name: formData.name,
           doorNo: formData.doorNo,
@@ -125,73 +144,103 @@ const BaseForm = ({
           city: formData.city,
           contactNo: formData.contactNo
         };
-
+        
         const { saveResidentialStep1 } = await import("../../screens/residential/logic/api");
         const step1Response = await saveResidentialStep1(step1Data);
-        const roNo = step1Response.id;
+        const roNo = step1Response.roNo || step1Response.id; // Handle both possible return values
+        
+        // Save step 2 data to the database with correct structure
+        try {
+          // Prepare bedrooms array
+          const bedrooms = [];
+          const numBedrooms = parseInt(formData.noOfBedrooms);
+          
+          if (numBedrooms >= 1) {
+            bedrooms.push({
+              number: 1,
+              length: formData.bedroom1Length,
+              breadth: formData.bedroom1Breadth
+            });
+          }
+          
+          if (numBedrooms >= 2) {
+            bedrooms.push({
+              number: 2,
+              length: formData.bedroom2Length,
+              breadth: formData.bedroom2Breadth
+            });
+          }
+          
+          if (numBedrooms >= 3) {
+            bedrooms.push({
+              number: 3,
+              length: formData.bedroom3Length,
+              breadth: formData.bedroom3Breadth
+            });
+          }
+          
+          const step2Data = {
+            roNo: roNo,
+            facingDirection: formData.facingDirection,
+            hallLength: formData.hallLength,
+            hallBreadth: formData.hallBreadth,
+            noOfBedrooms: formData.noOfBedrooms,
+            kitchenLength: formData.kitchenLength,
+            kitchenBreadth: formData.kitchenBreadth,
+            noOfBathrooms: formData.noOfBathrooms,
+            bathroom1Type: formData.bathroom1Type,
+            floorNo: formData.floorNo,
+            bedrooms: bedrooms
+          };
 
-        // STEP 2
-        const step2Data = {
-          roNo,
-          facingDirection: formData.facingDirection,
-          hallLength: formData.hallLength,
-          hallBreadth: formData.hallBreadth,
-          noOfBedrooms: formData.noOfBedrooms,
-          kitchenLength: formData.kitchenLength,
-          kitchenBreadth: formData.kitchenBreadth,
-          noOfBathrooms: formData.noOfBathrooms,
-          bathroom1Type: formData.bathroom1Type,
-          floorNo: formData.floorNo,
-          bedrooms: []
-        };
+          const { saveResidentialStep2 } = await import("../../screens/residential/logic/api");
+          await saveResidentialStep2(step2Data);
+          
+          // Save step 3 data to the database
+          try {
+            const step3Data = {
+              roNo: roNo,
+              advanceAmount: formData.advanceAmount,
+              monthlyRent: formData.rentAmount
+            };
 
-        const numBedrooms = parseInt(formData.noOfBedrooms);
-        if (numBedrooms >= 1)
-          step2Data.bedrooms.push({
-            number: 1,
-            length: formData.bedroom1Length,
-            breadth: formData.bedroom1Breadth
-          });
-        if (numBedrooms >= 2)
-          step2Data.bedrooms.push({
-            number: 2,
-            length: formData.bedroom2Length,
-            breadth: formData.bedroom2Breadth
-          });
-        if (numBedrooms >= 3)
-          step2Data.bedrooms.push({
-            number: 3,
-            length: formData.bedroom3Length,
-            breadth: formData.bedroom3Breadth
-          });
+            const { saveResidentialStep3 } = await import("../../screens/residential/logic/api");
+            await saveResidentialStep3(step3Data);
 
-        const { saveResidentialStep2 } = await import("../../screens/residential/logic/api");
-        await saveResidentialStep2(step2Data);
-
-        // STEP 3
-        const step3Data = {
-          roNo,
-          advanceAmount: formData.advanceAmount,
-          monthlyRent: formData.rentAmount
-        };
-
-        const { saveResidentialStep3 } = await import("../../screens/residential/logic/api");
-        await saveResidentialStep3(step3Data);
-
-        Alert.alert("Success", successMessage, [
+            // Show only one success message for house details saved
+            Alert.alert(
+              "Success",
+              "house details saved", // As per UI Feedback Messaging Strategy memory
+              [
+                {
+                  text: "OK",
+                  onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
+                }
+              ]
+            );
+          } catch (step3Error) {
+            Alert.alert("Error", "Failed to save step 3 data: " + step3Error.message);
+          }
+        } catch (step2Error) {
+          Alert.alert("Error", "Failed to save step 2 data: " + step2Error.message);
+        }
+      } catch (step1Error) {
+        Alert.alert("Error", "Failed to save step 1 data: " + step1Error.message);
+      }
+    } else {
+      // For non-residential forms, show success message directly
+      Alert.alert(
+        "Success",
+        successMessage,
+        [
           {
             text: "OK",
             onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
           }
-        ]);
-      } catch (error) {
-        Alert.alert("Error", error.message);
-      }
+        ]
+      );
     }
   };
-
-  const handleNextStep = () => handleNext(step, setStep, () => {});
-  const handlePrevStep = () => handlePrevious(step, setStep);
 
   return (
     <View style={categoryContentStyles.container}>
@@ -224,15 +273,6 @@ const BaseForm = ({
               onPress={handlePrevStep}
             >
               <Text style={categoryContentStyles.buttonText}>Back</Text>
-            </TouchableOpacity>
-          )}
-
-          {step === 1 && (
-            <TouchableOpacity
-              style={[categoryContentStyles.button, categoryContentStyles.primaryButton]}
-              onPress={handleSaveStep1}
-            >
-              <Text style={categoryContentStyles.buttonText}>Save</Text>
             </TouchableOpacity>
           )}
 

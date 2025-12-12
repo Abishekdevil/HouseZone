@@ -33,7 +33,7 @@ router.post('/residential/step1', async (req, res) => {
     );
 
     res.status(201).json({
-      id: result.insertId,
+      roNo: result.insertId, // Changed from 'id' to 'roNo' for consistency
       message: 'Step 1 saved successfully'
     });
   } catch (error) {

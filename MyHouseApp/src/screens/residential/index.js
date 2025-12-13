@@ -1,4 +1,5 @@
 import React from "react";
+import { Alert } from "react-native"; // Import Alert from react-native
 import BaseForm from '../../shared/components/BaseForm';
 import Step2DetailsComponent from './Step2Details';
 import { initialFormData } from './logic/mainLogic';
@@ -10,29 +11,29 @@ const validateResidentialForm = (formData) => {
       !formData.noOfBedrooms || !formData.bedroom1Length || !formData.bedroom1Breadth || 
       !formData.kitchenLength || !formData.kitchenBreadth || !formData.noOfBathrooms || 
       !formData.bathroom1Type || !formData.floorNo) {
-    alert("Validation Error", "Please fill in all required house details in Step 2");
+    Alert.alert("Validation Error", "Please fill in all required house details in Step 2");
     return false;
   }
 
   // Validate conditional bedroom fields
   const numBedrooms = parseInt(formData.noOfBedrooms);
   if (numBedrooms >= 2 && (!formData.bedroom2Length || !formData.bedroom2Breadth)) {
-    alert("Validation Error", "Please fill in Bedroom 2 dimensions");
+    Alert.alert("Validation Error", "Please fill in Bedroom 2 dimensions");
     return false;
   }
   if (numBedrooms >= 3 && (!formData.bedroom3Length || !formData.bedroom3Breadth)) {
-    alert("Validation Error", "Please fill in Bedroom 3 dimensions");
+    Alert.alert("Validation Error", "Please fill in Bedroom 3 dimensions");
     return false;
   }
 
   // Validate conditional bathroom fields
   const numBathrooms = parseInt(formData.noOfBathrooms);
   if (numBathrooms >= 2 && !formData.bathroom2Type) {
-    alert("Validation Error", "Please select Bathroom 2 type");
+    Alert.alert("Validation Error", "Please select Bathroom 2 type");
     return false;
   }
   if (numBathrooms >= 3 && !formData.bathroom3Type) {
-    alert("Validation Error", "Please select Bathroom 3 type");
+    Alert.alert("Validation Error", "Please select Bathroom 3 type");
     return false;
   }
 

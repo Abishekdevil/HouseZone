@@ -1,0 +1,166 @@
+import { Router } from 'express';
+import { pool } from '../config/database.js';
+
+const router = Router();
+
+// API endpoint for getting all residential properties for tenant view
+router.get('/residential/properties', async (req, res) => {
+  try {
+    // Join all relevant tables to get property details
+    const query = `
+      SELECT 
+        rd.roNo as id,
+        rd.roArea as area,
+        rh.number_of_bedrooms as bedrooms,
+        rp.monthly_rent as rent
+      FROM resowndet rd
+      LEFT JOIN resownho rh ON rd.roNo = rh.roNo
+      LEFT JOIN resownpay rp ON rd.roNo = rp.roNo
+      ORDER BY rd.roNo DESC
+    `;
+    
+    const [rows] = await pool.execute(query);
+    
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error fetching residential properties:', error);
+    res.status(500).json({ message: 'Error fetching properties', error: error.message });
+  }
+});
+
+// API endpoint for searching residential properties
+router.get('/residential/properties/search', async (req, res) => {
+  try {
+    const { searchTerm } = req.query;
+    
+    if (!searchTerm) {
+      return res.status(400).json({ message: 'Search term is required' });
+    }
+    
+    // Search in area
+    const query = `
+      SELECT 
+        rd.roNo as id,
+        rd.roArea as area,
+        rh.number_of_bedrooms as bedrooms,
+        rp.monthly_rent as rent
+      FROM resowndet rd
+      LEFT JOIN resownho rh ON rd.roNo = rh.roNo
+      LEFT JOIN resownpay rp ON rd.roNo = rp.roNo
+      WHERE rd.roArea LIKE ?
+      ORDER BY rd.roNo DESC
+    `;
+    
+    const searchPattern = `%${searchTerm}%`;
+    const [rows] = await pool.execute(query, [searchPattern]);
+    
+    res.status(200).json(rows);
+  } catch (error) {
+    console.error('Error searching residential properties:', error);
+    res.status(500).json({ message: 'Error searching properties', error: error.message });
+  }
+});
+
+// API endpoint for getting detailed residential property information
+router.get('/residential/properties/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Get step 1 details (address information)
+    const [step1Rows] = await pool.execute(
+      `SELECT 
+        roNo as id,
+        roName as ownerName,
+        roDoor as doorNo,
+        roStreet as street,
+        roArea as area,
+        roPin as pincode,
+        roCity as city,
+        roPhNo as contactNo
+      FROM resowndet 
+      WHERE roNo = ?`,
+      [id]
+    );
+    
+    if (step1Rows.length === 0) {
+      return res.status(404).json({ message: 'Property not found' });
+    }
+    
+    const propertyDetails = step1Rows[0];
+    
+    // Get step 2 details (house details)
+    const [step2Rows] = await pool.execute(
+      `SELECT 
+        roNo,
+        facing_direction as facingDirection,
+        hall_length as hallLength,
+        hall_breadth as hallBreadth,
+        number_of_bedrooms as numberOfBedrooms,
+        kitchen_length as kitchenLength,
+        kitchen_breadth as kitchenBreadth,
+        number_of_bathrooms as numberOfBathrooms,
+        bathroom1_type as bathroom1Type,
+        floor_number as floorNumber
+      FROM resownho 
+      WHERE roNo = ?`,
+      [id]
+    );
+    
+    if (step2Rows.length > 0) {
+      // Calculate total square feet for hall, kitchen, and bedrooms
+      const step2Data = step2Rows[0];
+      
+      // Hall total area
+      if (step2Data.hallLength && step2Data.hallBreadth) {
+        step2Data.hallTotalArea = (step2Data.hallLength * step2Data.hallBreadth).toFixed(2);
+      }
+      
+      // Kitchen total area
+      if (step2Data.kitchenLength && step2Data.kitchenBreadth) {
+        step2Data.kitchenTotalArea = (step2Data.kitchenLength * step2Data.kitchenBreadth).toFixed(2);
+      }
+      
+      // Get bedroom sizes
+      const [bedroomRows] = await pool.execute(
+        `SELECT 
+          bedroom_number as bedroomNumber,
+          length,
+          breadth
+        FROM bedroom_sizes 
+        WHERE roNo = ?
+        ORDER BY bedroom_number`,
+        [id]
+      );
+      
+      // Calculate bedroom total areas
+      step2Data.bedrooms = bedroomRows.map(bedroom => ({
+        ...bedroom,
+        totalArea: (bedroom.length * bedroom.breadth).toFixed(2)
+      }));
+      
+      propertyDetails.houseDetails = step2Data;
+    }
+    
+    // Get step 3 details (payment information)
+    const [step3Rows] = await pool.execute(
+      `SELECT 
+        roNo,
+        advance_amount as advanceAmount,
+        monthly_rent as monthlyRent
+      FROM resownpay 
+      WHERE roNo = ?`,
+      [id]
+    );
+    
+    if (step3Rows.length > 0) {
+      propertyDetails.paymentDetails = step3Rows[0];
+    }
+    
+    res.status(200).json(propertyDetails);
+  } catch (error) {
+    console.error('Error fetching residential property details:', error);
+    res.status(500).json({ message: 'Error fetching property details', error: error.message });
+  }
+});
+
+export default router;

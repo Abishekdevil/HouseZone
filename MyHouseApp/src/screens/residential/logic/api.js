@@ -1,5 +1,26 @@
 // API functions for residential data
-const API_BASE_URL = 'http://10.86.202.103:3000/api'; // Change this to your backend IP address
+// Use localhost as default, but allow override via environment variable
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:3000/api';
+
+// Helper function to handle fetch requests
+const handleFetchRequest = async (url, options) => {
+  try {
+    console.log(`Making request to: ${url}`);
+    const response = await fetch(url, options);
+    console.log(`Response status: ${response.status}`);
+    
+    const result = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return result;
+  } catch (error) {
+    console.error(`Fetch error for ${url}:`, error);
+    throw error;
+  }
+};
 
 // Save residential step 1 details
 export const saveResidentialStep1 = async (step1Data) => {
@@ -17,94 +38,70 @@ export const saveResidentialStep1 = async (step1Data) => {
       contactNo
     };
 
-    const response = await fetch(`${API_BASE_URL}/residential/step1`, {
+    const result = await handleFetchRequest(`${API_BASE_URL}/residential/step1`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(dataToSend),
     });
-
-    const result = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to save step 1 details');
-    }
     
     return result;
   } catch (error) {
     console.error('Error saving step 1 details:', error);
-    throw error;
+    throw new Error(`Failed to save step 1 details: ${error.message || 'Network error'}`);
   }
 };
 
 // Save residential step 2 details
 export const saveResidentialStep2 = async (step2Data) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/residential/step2`, {
+    const result = await handleFetchRequest(`${API_BASE_URL}/residential/step2`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(step2Data),
     });
-
-    const result = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to save step 2 details');
-    }
     
     return result;
   } catch (error) {
     console.error('Error saving step 2 details:', error);
-    throw error;
+    throw new Error(`Failed to save step 2 details: ${error.message || 'Network error'}`);
   }
 };
 
 // Save residential step 3 details
 export const saveResidentialStep3 = async (step3Data) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/residential/step3`, {
+    const result = await handleFetchRequest(`${API_BASE_URL}/residential/step3`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(step3Data),
     });
-
-    const result = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to save step 3 details');
-    }
     
     return result;
   } catch (error) {
     console.error('Error saving step 3 details:', error);
-    throw error;
+    throw new Error(`Failed to save step 3 details: ${error.message || 'Network error'}`);
   }
 };
 
 // Get residential step 1 details by ID
 export const getResidentialStep1 = async (id) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/residential/step1/${id}`, {
+    const result = await handleFetchRequest(`${API_BASE_URL}/residential/step1/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    const result = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(result.message || 'Failed to fetch step 1 details');
-    }
     
     return result;
   } catch (error) {
     console.error('Error fetching step 1 details:', error);
-    throw error;
+    throw new Error(`Failed to fetch step 1 details: ${error.message || 'Network error'}`);
   }
 };

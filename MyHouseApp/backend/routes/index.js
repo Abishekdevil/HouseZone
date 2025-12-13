@@ -4,6 +4,7 @@ import loginRoutes from './loginRoutes.js';
 import residentialStep1Routes from './residentialStep1Routes.js';
 import residentialStep2Routes from './residentialStep2Routes.js';
 import residentialStep3Routes from './residentialStep3Routes.js';
+import tenantRoutes from './tenantRoutes.js';
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use('/', loginRoutes);
 router.use('/', residentialStep1Routes);
 router.use('/', residentialStep2Routes);
 router.use('/', residentialStep3Routes);
+router.use('/', tenantRoutes);
 
 export default router;

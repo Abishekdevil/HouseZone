@@ -1,8 +1,12 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import ErrorBoundary from './src/components/ErrorBoundary';
 import AppNavigator from './src/navigation/AppNavigator';
 
 export default function App() {
-  return <AppNavigator />;
+  return (
+    <ErrorBoundary>
+      <AppNavigator />
+      <StatusBar style="auto" />
+    </ErrorBoundary>
+  );
 }

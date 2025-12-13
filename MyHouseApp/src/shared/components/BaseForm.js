@@ -110,135 +110,164 @@ const BaseForm = ({
 
   // Handle form submission (for final submit) - validate and save all steps
   const handleFormSubmit = async () => {
-    // Validate step 1
-    if (!validateStep1()) {
-      setStep(1);
-      return;
-    }
-    
-    // Validate step 2 using the provided validation function
-    if (validationFunction) {
-      const isValid = validationFunction(formData);
-      if (!isValid) {
-        setStep(2);
+    try {
+      // Validate step 1
+      if (!validateStep1()) {
+        setStep(1);
         return;
       }
-    }
-    
-    // Validate step 3
-    if (!validateStep3()) {
-      setStep(3);
-      return;
-    }
-    
-    // For residential forms, save all data to the database
-    if (category === "residential") {
-      try {
-        // Save step 1 data to the database
-        const step1Data = {
-          name: formData.name,
-          doorNo: formData.doorNo,
-          street: formData.street,
-          pincode: formData.pincode,
-          area: formData.area,
-          city: formData.city,
-          contactNo: formData.contactNo
-        };
-        
-        const { saveResidentialStep1 } = await import("../../screens/residential/logic/api");
-        const step1Response = await saveResidentialStep1(step1Data);
-        const roNo = step1Response.roNo || step1Response.id; // Handle both possible return values
-        
-        // Save step 2 data to the database with correct structure
+      
+      // Validate step 2 using the provided validation function
+      if (validationFunction) {
+        const isValid = validationFunction(formData);
+        if (!isValid) {
+          setStep(2);
+          return;
+        }
+      }
+      
+      // Validate step 3
+      if (!validateStep3()) {
+        setStep(3);
+        return;
+      }
+      
+      // For residential forms, save all data to the database
+      if (category === "residential") {
         try {
-          // Prepare bedrooms array
-          const bedrooms = [];
-          const numBedrooms = parseInt(formData.noOfBedrooms);
-          
-          if (numBedrooms >= 1) {
-            bedrooms.push({
-              number: 1,
-              length: formData.bedroom1Length,
-              breadth: formData.bedroom1Breadth
-            });
-          }
-          
-          if (numBedrooms >= 2) {
-            bedrooms.push({
-              number: 2,
-              length: formData.bedroom2Length,
-              breadth: formData.bedroom2Breadth
-            });
-          }
-          
-          if (numBedrooms >= 3) {
-            bedrooms.push({
-              number: 3,
-              length: formData.bedroom3Length,
-              breadth: formData.bedroom3Breadth
-            });
-          }
-          
-          const step2Data = {
-            roNo: roNo,
-            facingDirection: formData.facingDirection,
-            hallLength: formData.hallLength,
-            hallBreadth: formData.hallBreadth,
-            noOfBedrooms: formData.noOfBedrooms,
-            kitchenLength: formData.kitchenLength,
-            kitchenBreadth: formData.kitchenBreadth,
-            noOfBathrooms: formData.noOfBathrooms,
-            bathroom1Type: formData.bathroom1Type,
-            floorNo: formData.floorNo,
-            bedrooms: bedrooms
+          // Save step 1 data to the database
+          const step1Data = {
+            name: formData.name,
+            doorNo: formData.doorNo,
+            street: formData.street,
+            pincode: formData.pincode,
+            area: formData.area,
+            city: formData.city,
+            contactNo: formData.contactNo
           };
-
-          const { saveResidentialStep2 } = await import("../../screens/residential/logic/api");
-          await saveResidentialStep2(step2Data);
           
-          // Save step 3 data to the database
+          let roNo;
           try {
-            const step3Data = {
+            const { saveResidentialStep1 } = await import("../../screens/residential/logic/api");
+            const step1Response = await saveResidentialStep1(step1Data);
+            roNo = step1Response.roNo || step1Response.id; // Handle both possible return values
+            
+            if (!roNo) {
+              throw new Error("Failed to get ID from step 1 response");
+            }
+          } catch (step1Error) {
+            console.error("Step 1 error:", step1Error);
+            Alert.alert("Error", "Failed to save step 1 data: " + (step1Error.message || "Unknown error"));
+            return;
+          }
+          
+          // Save step 2 data to the database with correct structure
+          try {
+            // Prepare bedrooms array
+            const bedrooms = [];
+            const numBedrooms = parseInt(formData.noOfBedrooms);
+            
+            if (numBedrooms >= 1) {
+              bedrooms.push({
+                number: 1,
+                length: formData.bedroom1Length,
+                breadth: formData.bedroom1Breadth
+              });
+            }
+            
+            if (numBedrooms >= 2) {
+              bedrooms.push({
+                number: 2,
+                length: formData.bedroom2Length,
+                breadth: formData.bedroom2Breadth
+              });
+            }
+            
+            if (numBedrooms >= 3) {
+              bedrooms.push({
+                number: 3,
+                length: formData.bedroom3Length,
+                breadth: formData.bedroom3Breadth
+              });
+            }
+            
+            const step2Data = {
               roNo: roNo,
-              advanceAmount: formData.advanceAmount,
-              monthlyRent: formData.rentAmount
+              facingDirection: formData.facingDirection,
+              hallLength: formData.hallLength,
+              hallBreadth: formData.hallBreadth,
+              noOfBedrooms: formData.noOfBedrooms,
+              kitchenLength: formData.kitchenLength,
+              kitchenBreadth: formData.kitchenBreadth,
+              noOfBathrooms: formData.noOfBathrooms,
+              bathroom1Type: formData.bathroom1Type,
+              floorNo: formData.floorNo,
+              bedrooms: bedrooms
             };
 
-            const { saveResidentialStep3 } = await import("../../screens/residential/logic/api");
-            await saveResidentialStep3(step3Data);
+            try {
+              const { saveResidentialStep2 } = await import("../../screens/residential/logic/api");
+              await saveResidentialStep2(step2Data);
+              
+              // Save step 3 data to the database
+              try {
+                const step3Data = {
+                  roNo: roNo,
+                  advanceAmount: formData.advanceAmount,
+                  monthlyRent: formData.rentAmount
+                };
 
-            // Show only one success message for house details saved
-            Alert.alert(
-              "Success",
-              "house details saved", // As per UI Feedback Messaging Strategy memory
-              [
-                {
-                  text: "OK",
-                  onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
+                try {
+                  const { saveResidentialStep3 } = await import("../../screens/residential/logic/api");
+                  await saveResidentialStep3(step3Data);
+
+                  // Show only one success message for house details saved
+                  Alert.alert(
+                    "Success",
+                    "house details saved", // As per UI Feedback Messaging Strategy memory
+                    [
+                      {
+                        text: "OK",
+                        onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
+                      }
+                    ]
+                  );
+                } catch (step3Error) {
+                  console.error("Step 3 error:", step3Error);
+                  Alert.alert("Error", "Failed to save step 3 data: " + (step3Error.message || "Unknown error"));
                 }
-              ]
-            );
-          } catch (step3Error) {
-            Alert.alert("Error", "Failed to save step 3 data: " + step3Error.message);
+              } catch (step3Error) {
+                console.error("Step 3 error:", step3Error);
+                Alert.alert("Error", "Failed to save step 3 data: " + (step3Error.message || "Unknown error"));
+              }
+            } catch (step2Error) {
+              console.error("Step 2 error:", step2Error);
+              Alert.alert("Error", "Failed to save step 2 data: " + (step2Error.message || "Unknown error"));
+            }
+          } catch (step2Error) {
+            console.error("Step 2 error:", step2Error);
+            Alert.alert("Error", "Failed to save step 2 data: " + (step2Error.message || "Unknown error"));
           }
-        } catch (step2Error) {
-          Alert.alert("Error", "Failed to save step 2 data: " + step2Error.message);
+        } catch (step1Error) {
+          console.error("Step 1 error:", step1Error);
+          Alert.alert("Error", "Failed to save step 1 data: " + (step1Error.message || "Unknown error"));
         }
-      } catch (step1Error) {
-        Alert.alert("Error", "Failed to save step 1 data: " + step1Error.message);
+      } else {
+        // For non-residential forms, show success message directly
+        Alert.alert(
+          "Success",
+          successMessage,
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
+            }
+          ]
+        );
       }
-    } else {
-      // For non-residential forms, show success message directly
-      Alert.alert(
-        "Success",
-        successMessage,
-        [
-          {
-            text: "OK",
-            onPress: () => navigation.navigate(navigationTarget, { role: "Owner" })
-          }
-        ]
-      );
+    } catch (error) {
+      console.error("Unexpected error in form submission:", error);
+      Alert.alert("Error", "An unexpected error occurred: " + (error.message || "Unknown error"));
     }
   };
 

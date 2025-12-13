@@ -13,6 +13,9 @@ import AddHouse from '../screens/residential/index';
 import AddBusiness from '../screens/business/index';
 import AddMachinery from '../screens/machinery/index';
 import AddVehicles from '../screens/vehicles/index';
+import PropertiesList from '../screens/residential/tenant';
+import PropertyDetails from '../screens/residential/tenant/PropertyDetails';
+import TenantDetails from '../screens/residential/tenant/TenantDetails';
 
 const Stack = createNativeStackNavigator();
 
@@ -32,6 +35,9 @@ export default function AppNavigator() {
         <Stack.Screen name="AddVehicles" component={AddVehicles} />
         <Stack.Screen name="Machinery" component={Machinery} />
         <Stack.Screen name="AddMachinery" component={AddMachinery} />
+        <Stack.Screen name="PropertiesList" component={PropertiesList} />
+        <Stack.Screen name="PropertyDetails" component={PropertyDetails} />
+        <Stack.Screen name="TenantDetails" component={TenantDetails} />
       </Stack.Navigator>
     </NavigationContainer>
   );

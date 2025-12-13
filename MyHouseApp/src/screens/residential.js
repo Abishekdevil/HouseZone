@@ -13,6 +13,10 @@ export default function Residential() {
   const handleAddHouse = () => {
     navigation.navigate("AddHouse", { role });
   };
+  
+  const handleViewProperties = () => {
+    navigation.navigate("PropertiesList");
+  };
 
   return (
     <View style={categoryContentStyles.container}>
@@ -31,6 +35,15 @@ export default function Residential() {
             onPress={handleAddHouse}
           >
             <Text style={categoryContentStyles.buttonText}>Add Details</Text>
+          </TouchableOpacity>
+        )}
+        
+        {role === "Tenant" && (
+          <TouchableOpacity 
+            style={[categoryContentStyles.button, categoryContentStyles.primaryButton]} 
+            onPress={handleViewProperties}
+          >
+            <Text style={categoryContentStyles.buttonText}>View Available Properties</Text>
           </TouchableOpacity>
         )}
       </View>

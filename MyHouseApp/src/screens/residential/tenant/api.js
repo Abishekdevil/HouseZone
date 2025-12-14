@@ -39,23 +39,6 @@ export const getAllProperties = async () => {
   }
 };
 
-// Search residential properties
-export const searchProperties = async (searchTerm) => {
-  try {
-    const result = await handleFetchRequest(`${API_BASE_URL}/residential/properties/search?searchTerm=${encodeURIComponent(searchTerm)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    return result;
-  } catch (error) {
-    console.error('Error searching properties:', error);
-    throw new Error(`Failed to search properties: ${error.message || 'Network error'}`);
-  }
-};
-
 // Get detailed residential property information
 export const getPropertyDetails = async (id) => {
   try {

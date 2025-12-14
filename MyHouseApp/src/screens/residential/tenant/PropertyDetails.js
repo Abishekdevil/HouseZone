@@ -65,6 +65,19 @@ export default function PropertyDetails() {
     );
   }
 
+  const handleProceed = () => {
+    // Navigate to the TenantDetails page
+    navigation.navigate('TenantDetails');
+  };
+
+  // Helper function to format dimensions
+  const formatDimensions = (length, breadth, totalArea) => {
+    if (length && breadth) {
+      return `${length}ft × ${breadth}ft = ${totalArea} sq.ft`;
+    }
+    return 'N/A';
+  };
+
   return (
     <View style={categoryContentStyles.container}>
       <Header />
@@ -103,9 +116,11 @@ export default function PropertyDetails() {
               <View style={propertyDetailsStyles.detailRow}>
                 <Text style={propertyDetailsStyles.label}>Hall Size:</Text>
                 <Text style={propertyDetailsStyles.value}>
-                  {property.houseDetails.hallTotalArea 
-                    ? `${property.houseDetails.hallTotalArea} sq.ft` 
-                    : 'N/A'}
+                  {formatDimensions(
+                    property.houseDetails.hallLength,
+                    property.houseDetails.hallBreadth,
+                    property.houseDetails.hallTotalArea
+                  )}
                 </Text>
               </View>
               
@@ -113,9 +128,11 @@ export default function PropertyDetails() {
               <View style={propertyDetailsStyles.detailRow}>
                 <Text style={propertyDetailsStyles.label}>Kitchen Size:</Text>
                 <Text style={propertyDetailsStyles.value}>
-                  {property.houseDetails.kitchenTotalArea 
-                    ? `${property.houseDetails.kitchenTotalArea} sq.ft` 
-                    : 'N/A'}
+                  {formatDimensions(
+                    property.houseDetails.kitchenLength,
+                    property.houseDetails.kitchenBreadth,
+                    property.houseDetails.kitchenTotalArea
+                  )}
                 </Text>
               </View>
               
@@ -129,7 +146,9 @@ export default function PropertyDetails() {
                 <View key={index} style={propertyDetailsStyles.detailRow}>
                   <Text style={propertyDetailsStyles.label}>Bedroom {bedroom.bedroomNumber}:</Text>
                   <Text style={propertyDetailsStyles.value}>
-                    {bedroom.totalArea ? `${bedroom.totalArea} sq.ft` : 'N/A'}
+                    {bedroom.length && bedroom.breadth 
+                      ? `${bedroom.length}ft × ${bedroom.breadth}ft = ${bedroom.totalArea} sq.ft` 
+                      : 'N/A'}
                   </Text>
                 </View>
               ))}
@@ -190,20 +209,18 @@ export default function PropertyDetails() {
 
         </ScrollView>
         
-        <View style={propertyDetailsStyles.buttonContainer}>
+        {/* Button Row with Back and Proceed buttons */}
+        <View style={categoryContentStyles.buttonRow}>
           <TouchableOpacity 
-            style={[categoryContentStyles.button, categoryContentStyles.secondaryButton, { flex: 1, marginRight: 10 }]} 
+            style={[categoryContentStyles.button, categoryContentStyles.cancelButton]}
             onPress={() => navigation.goBack()}
           >
             <Text style={categoryContentStyles.buttonText}>Back to Properties</Text>
           </TouchableOpacity>
           
           <TouchableOpacity 
-            style={[categoryContentStyles.button, categoryContentStyles.primaryButton, { flex: 1, marginLeft: 10 }]} 
-            onPress={() => {
-              // Navigate to TenantDetails page
-              navigation.navigate('TenantDetails');
-            }}
+            style={[categoryContentStyles.button, categoryContentStyles.primaryButton]}
+            onPress={handleProceed}
           >
             <Text style={categoryContentStyles.buttonText}>Click OK to Proceed</Text>
           </TouchableOpacity>
@@ -214,4 +231,3 @@ export default function PropertyDetails() {
     </View>
   );
 }
-

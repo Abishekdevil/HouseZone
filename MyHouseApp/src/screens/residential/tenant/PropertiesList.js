@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, TouchableOpacity, FlatList, Image, StyleSheet, Alert } from "react-native";
+import { View, Text, TouchableOpacity, FlatList, Image, StyleSheet, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import categoryContentStyles from '../../../styles/categoryContentStyles';
 import Header from '../../../components/Header';
 import Footer from '../../../components/Footer';
-import { getAllProperties, searchProperties } from './api';
+import { getAllProperties } from './api';
 import propertyListStyles from './propertyListStyles';
 
 const PropertyCard = ({ property, onViewDetails }) => {
@@ -31,7 +31,6 @@ const PropertyCard = ({ property, onViewDetails }) => {
 export default function PropertiesList() {
   const navigation = useNavigation();
   const [properties, setProperties] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,24 +45,6 @@ export default function PropertiesList() {
     } catch (error) {
       Alert.alert('Error', 'Failed to load properties. Please try again.');
       console.error('Error loading properties:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
-      loadProperties();
-      return;
-    }
-    
-    try {
-      setLoading(true);
-      const data = await searchProperties(searchTerm);
-      setProperties(data);
-    } catch (error) {
-      Alert.alert('Error', 'Failed to search properties. Please try again.');
-      console.error('Error searching properties:', error);
     } finally {
       setLoading(false);
     }
@@ -84,22 +65,6 @@ export default function PropertiesList() {
       {/* Content */}
       <View style={categoryContentStyles.content}>
         <Text style={categoryContentStyles.pageTitle}>Available Properties</Text>
-        
-        {/* Search Bar */}
-        <View style={propertyListStyles.searchContainer}>
-          <TextInput
-            style={propertyListStyles.searchInput}
-            placeholder="Search by owner name, area, or city..."
-            value={searchTerm}
-            onChangeText={setSearchTerm}
-          />
-          <TouchableOpacity 
-            style={propertyListStyles.searchButton}
-            onPress={handleSearch}
-          >
-            <Text style={propertyListStyles.searchButtonText}>Search</Text>
-          </TouchableOpacity>
-        </View>
         
         {/* Properties List */}
         {loading ? (

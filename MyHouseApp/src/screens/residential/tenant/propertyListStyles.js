@@ -3,7 +3,7 @@ import { StyleSheet } from "react-native";
 const propertyListStyles = StyleSheet.create({
   searchContainer: {
     flexDirection: 'row',
-    marginBottom: 15,
+    marginBottom: 12,
     alignItems: 'center'
   },
   searchInput: {
@@ -11,20 +11,20 @@ const propertyListStyles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#4A90E2',
     borderRadius: 4,
-    padding: 8,
-    fontSize: 15,
+    padding: 6,
+    fontSize: 13,
     backgroundColor: '#fff'
   },
   searchButton: {
     backgroundColor: '#4A90E2',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 4,
-    marginLeft: 10
+    marginLeft: 6
   },
   searchButtonText: {
     color: 'white',
-    fontSize: 15
+    fontSize: 13
   },
   list: {
     flex: 1,
@@ -33,69 +33,69 @@ const propertyListStyles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    padding: 15,
-    marginBottom: 15,
+    padding: 12,
+    marginBottom: 12,
     borderWidth: 1,
     borderColor: '#4A90E2',
-    borderRadius: 6,
+    borderRadius: 5,
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 1
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.0,
-    elevation: 3
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
+    elevation: 2
   },
   imagePlaceholder: {
-    width: 90,
+    width: 120,
     height: 120,
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
-    borderRadius: 6
+    marginRight: 12,
+    borderRadius: 5
   },
   imageText: {
     color: '#999',
-    fontSize: 11
+    fontSize: 9
   },
   detailsContainer: {
     flex: 1,
     justifyContent: 'space-between'
   },
   location: {
-    fontSize: 17,
+    fontSize: 15,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 10
+    marginBottom: 8
   },
   propertyInfo: {
     flexDirection: 'column',
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
-    marginBottom: 12,
-    padding: 10,
+    marginBottom: 10,
+    padding: 8,
     backgroundColor: '#f9f9f9',
-    borderRadius: 4
+    borderRadius: 3
   },
   infoText: {
-    fontSize: 15,
+    fontSize: 13,
     color: '#666',
-    marginBottom: 6
+    marginBottom: 5
   },
   bedroomsText: {
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 6
+    marginBottom: 5
   },
   rentText: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
     color: '#27ae60',
-    marginTop: 6,
-    paddingTop: 8,
+    marginTop: 4,
+    paddingTop: 5,
     borderTopWidth: 1,
     borderTopColor: '#ddd'
   },
@@ -107,20 +107,20 @@ const propertyListStyles = StyleSheet.create({
   },
   viewMoreText: {
     color: '#4A90E2',
-    fontSize: 15,
+    fontSize: 13,
     fontWeight: 'bold'
   },
   loadingText: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 13,
     color: '#666',
-    marginTop: 15
+    marginTop: 12
   },
   noPropertiesText: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: 13,
     color: '#666',
-    marginTop: 15
+    marginTop: 12
   }
 });
 

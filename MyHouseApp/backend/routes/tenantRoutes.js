@@ -14,8 +14,8 @@ router.get('/residential/properties', async (req, res) => {
         rh.number_of_bedrooms as bedrooms,
         rp.monthly_rent as rent
       FROM resowndet rd
-      LEFT JOIN resownho rh ON rd.roNo = rh.roNo
-      LEFT JOIN resownpay rp ON rd.roNo = rp.roNo
+      INNER JOIN resownho rh ON rd.roNo = rh.roNo
+      INNER JOIN resownpay rp ON rd.roNo = rp.roNo
       ORDER BY rd.roNo DESC
     `;
     
@@ -25,39 +25,6 @@ router.get('/residential/properties', async (req, res) => {
   } catch (error) {
     console.error('Error fetching residential properties:', error);
     res.status(500).json({ message: 'Error fetching properties', error: error.message });
-  }
-});
-
-// API endpoint for searching residential properties
-router.get('/residential/properties/search', async (req, res) => {
-  try {
-    const { searchTerm } = req.query;
-    
-    if (!searchTerm) {
-      return res.status(400).json({ message: 'Search term is required' });
-    }
-    
-    // Search in area
-    const query = `
-      SELECT 
-        rd.roNo as id,
-        rd.roArea as area,
-        rh.number_of_bedrooms as bedrooms,
-        rp.monthly_rent as rent
-      FROM resowndet rd
-      LEFT JOIN resownho rh ON rd.roNo = rh.roNo
-      LEFT JOIN resownpay rp ON rd.roNo = rp.roNo
-      WHERE rd.roArea LIKE ?
-      ORDER BY rd.roNo DESC
-    `;
-    
-    const searchPattern = `%${searchTerm}%`;
-    const [rows] = await pool.execute(query, [searchPattern]);
-    
-    res.status(200).json(rows);
-  } catch (error) {
-    console.error('Error searching residential properties:', error);
-    res.status(500).json({ message: 'Error searching properties', error: error.message });
   }
 });
 
@@ -141,7 +108,7 @@ router.get('/residential/properties/:id', async (req, res) => {
       propertyDetails.houseDetails = step2Data;
     }
     
-    // Get step 3 details (payment information)
+  // Get step 3 details (payment information)
     const [step3Rows] = await pool.execute(
       `SELECT 
         roNo,

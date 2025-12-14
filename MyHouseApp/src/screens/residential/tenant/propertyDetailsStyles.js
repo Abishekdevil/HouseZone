@@ -68,13 +68,6 @@ const propertyDetailsStyles = StyleSheet.create({
     textAlign: 'right',
     fontWeight: '500',
     paddingLeft: 10
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 20,
-    marginBottom: 20,
-    marginHorizontal: 0
   }
 });
 

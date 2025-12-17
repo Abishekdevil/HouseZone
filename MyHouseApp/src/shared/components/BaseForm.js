@@ -108,6 +108,11 @@ const BaseForm = ({
 
   const handlePrevStep = () => handlePrevious(step, setStep);
 
+  // Handle going back to the previous screen
+  const handleGoBack = () => {
+    navigation.goBack();
+  };
+
   // Handle form submission (for final submit) - validate and save all steps
   const handleFormSubmit = async () => {
     try {
@@ -296,10 +301,10 @@ const BaseForm = ({
         )}
 
         <View style={categoryContentStyles.buttonRow}>
-          {step > 1 && (
+          {(step > 1 || step === 1) && (
             <TouchableOpacity
               style={[categoryContentStyles.button, categoryContentStyles.cancelButton]}
-              onPress={handlePrevStep}
+              onPress={step > 1 ? handlePrevStep : handleGoBack}
             >
               <Text style={categoryContentStyles.buttonText}>Back</Text>
             </TouchableOpacity>

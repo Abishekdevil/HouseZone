@@ -67,8 +67,9 @@ const Step3PaymentImages = ({ formData, handleInputChange, handleImageSelect, ha
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Advance Amount"
+          placeholderTextColor="#999999"
           value={formData.advanceAmount}
-          onChangeText={(value) => handleInputChange("advanceAmount", value)}
+          onChangeText={(value) => handleInputChange('advanceAmount', value)}
           keyboardType="numeric"
         />
 
@@ -77,8 +78,9 @@ const Step3PaymentImages = ({ formData, handleInputChange, handleImageSelect, ha
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Monthly Rent"
+          placeholderTextColor="#999999"
           value={formData.rentAmount}
-          onChangeText={(value) => handleInputChange("rentAmount", value)}
+          onChangeText={(value) => handleInputChange('rentAmount', value)}
           keyboardType="numeric"
         />
 

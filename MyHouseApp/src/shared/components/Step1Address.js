@@ -12,6 +12,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Name of the Person"
+          placeholderTextColor="#999999"
           value={formData.name}
           onChangeText={(value) => handleInputChange('name', value)}
         />
@@ -20,6 +21,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Door No"
+          placeholderTextColor="#999999"
           value={formData.doorNo}
           onChangeText={(value) => handleInputChange('doorNo', value)}
         />
@@ -28,6 +30,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Street"
+          placeholderTextColor="#999999"
           value={formData.street}
           onChangeText={(value) => handleInputChange('street', value)}
         />
@@ -36,6 +39,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Pincode"
+          placeholderTextColor="#999999"
           value={formData.pincode}
           onChangeText={(value) => handleInputChange('pincode', value)}
           keyboardType="numeric"
@@ -45,6 +49,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Area"
+          placeholderTextColor="#999999"
           value={formData.area}
           onChangeText={(value) => handleInputChange('area', value)}
         />
@@ -53,6 +58,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="City"
+          placeholderTextColor="#999999"
           value={formData.city}
           onChangeText={(value) => handleInputChange('city', value)}
         />
@@ -61,6 +67,7 @@ const Step1Address = ({ formData, handleInputChange }) => {
         <TextInput
           style={categoryContentStyles.input}
           placeholder="Contact No"
+          placeholderTextColor="#999999"
           value={formData.contactNo}
           onChangeText={(value) => handleInputChange('contactNo', value)}
           keyboardType="phone-pad"

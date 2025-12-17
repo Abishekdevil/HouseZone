@@ -132,12 +132,12 @@ export default function PropertiesList() {
               onValueChange={(itemValue) => setRentFilter(itemValue)}
               mode="dropdown"
             >
-              <Picker.Item label="Any" value="" />
-              <Picker.Item label="2000-4000" value="2000-4000" />
-              <Picker.Item label="4000-6000" value="4000-6000" />
-              <Picker.Item label="6000-8000" value="6000-8000" />
-              <Picker.Item label="8000-10000" value="8000-10000" />
-              <Picker.Item label="10000-12000" value="10000-12000" />
+              <Picker.Item label="Any" value="" color="#999999" style={{ fontSize: 15 }} />
+              <Picker.Item label="2000-4000" value="2000-4000" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="4000-6000" value="4000-6000" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="6000-8000" value="6000-8000" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="8000-10000" value="8000-10000" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="10000-12000" value="10000-12000" color="#000000" style={{ fontSize: 15 }} />
             </Picker>
           </View>
           
@@ -149,11 +149,11 @@ export default function PropertiesList() {
               onValueChange={(itemValue) => setBedroomFilter(itemValue)}
               mode="dropdown"
             >
-              <Picker.Item label="Any" value="" />
-              <Picker.Item label="1 BHK" value="1" />
-              <Picker.Item label="2 BHK" value="2" />
-              <Picker.Item label="3 BHK" value="3" />
-              <Picker.Item label="3+ BHK" value="4" />
+              <Picker.Item label="Any" value="" color="#999999" style={{ fontSize: 15 }} />
+              <Picker.Item label="1 BHK" value="1" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="2 BHK" value="2" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="3 BHK" value="3" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="3+ BHK" value="4" color="#000000" style={{ fontSize: 15 }} />
             </Picker>
           </View>
           
@@ -165,10 +165,10 @@ export default function PropertiesList() {
               onValueChange={(itemValue) => setAreaFilter(itemValue)}
               mode="dropdown"
             >
-              <Picker.Item label="Any" value="" />
-              <Picker.Item label="Area 1" value="Area 1" />
-              <Picker.Item label="Area 2" value="Area 2" />
-              <Picker.Item label="Area 3" value="Area 3" />
+              <Picker.Item label="Any" value="" color="#999999" style={{ fontSize: 15 }} />
+              <Picker.Item label="Area 1" value="Area 1" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="Area 2" value="Area 2" color="#000000" style={{ fontSize: 15 }} />
+              <Picker.Item label="Area 3" value="Area 3" color="#000000" style={{ fontSize: 15 }} />
             </Picker>
           </View>
         </View>

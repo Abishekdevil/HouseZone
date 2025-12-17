@@ -17,11 +17,11 @@ const Step2Details = ({ formData, handleInputChange }) => {
             style={categoryContentStyles.picker}
             onValueChange={(value) => handleInputChange('facingDirection', value)}
           >
-            <Picker.Item label="Select Direction" value="" />
-            <Picker.Item label="North" value="North" />
-            <Picker.Item label="South" value="South" />
-            <Picker.Item label="East" value="East" />
-            <Picker.Item label="West" value="West" />
+            <Picker.Item label="Select Direction" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="North" value="North" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="South" value="South" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="East" value="East" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="West" value="West" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
         
@@ -33,6 +33,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Length"
+              placeholderTextColor="#999999"
               value={formData.hallLength}
               onChangeText={(value) => handleInputChange('hallLength', value)}
               keyboardType="numeric"
@@ -43,6 +44,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Breadth"
+              placeholderTextColor="#999999"
               value={formData.hallBreadth}
               onChangeText={(value) => handleInputChange('hallBreadth', value)}
               keyboardType="numeric"
@@ -58,10 +60,10 @@ const Step2Details = ({ formData, handleInputChange }) => {
             style={categoryContentStyles.picker}
             onValueChange={(value) => handleInputChange('noOfBedrooms', value)}
           >
-            <Picker.Item label="Select Number" value="" />
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
-            <Picker.Item label="3" value="3" />
+            <Picker.Item label="Select Number" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="1" value="1" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="2" value="2" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="3" value="3" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
         
@@ -73,6 +75,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Length"
+              placeholderTextColor="#999999"
               value={formData.bedroom1Length}
               onChangeText={(value) => handleInputChange('bedroom1Length', value)}
               keyboardType="numeric"
@@ -83,6 +86,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Breadth"
+              placeholderTextColor="#999999"
               value={formData.bedroom1Breadth}
               onChangeText={(value) => handleInputChange('bedroom1Breadth', value)}
               keyboardType="numeric"
@@ -100,6 +104,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 <TextInput
                   style={categoryContentStyles.input}
                   placeholder="Length"
+                  placeholderTextColor="#999999"
                   value={formData.bedroom2Length}
                   onChangeText={(value) => handleInputChange('bedroom2Length', value)}
                   keyboardType="numeric"
@@ -110,6 +115,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 <TextInput
                   style={categoryContentStyles.input}
                   placeholder="Breadth"
+                  placeholderTextColor="#999999"
                   value={formData.bedroom2Breadth}
                   onChangeText={(value) => handleInputChange('bedroom2Breadth', value)}
                   keyboardType="numeric"
@@ -129,6 +135,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 <TextInput
                   style={categoryContentStyles.input}
                   placeholder="Length"
+                  placeholderTextColor="#999999"
                   value={formData.bedroom3Length}
                   onChangeText={(value) => handleInputChange('bedroom3Length', value)}
                   keyboardType="numeric"
@@ -139,6 +146,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 <TextInput
                   style={categoryContentStyles.input}
                   placeholder="Breadth"
+                  placeholderTextColor="#999999"
                   value={formData.bedroom3Breadth}
                   onChangeText={(value) => handleInputChange('bedroom3Breadth', value)}
                   keyboardType="numeric"
@@ -156,6 +164,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Length"
+              placeholderTextColor="#999999"
               value={formData.kitchenLength}
               onChangeText={(value) => handleInputChange('kitchenLength', value)}
               keyboardType="numeric"
@@ -166,6 +175,7 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <TextInput
               style={categoryContentStyles.input}
               placeholder="Breadth"
+              placeholderTextColor="#999999"
               value={formData.kitchenBreadth}
               onChangeText={(value) => handleInputChange('kitchenBreadth', value)}
               keyboardType="numeric"
@@ -181,10 +191,10 @@ const Step2Details = ({ formData, handleInputChange }) => {
             style={categoryContentStyles.picker}
             onValueChange={(value) => handleInputChange('noOfBathrooms', value)}
           >
-            <Picker.Item label="Select Number" value="" />
-            <Picker.Item label="1" value="1" />
-            <Picker.Item label="2" value="2" />
-            <Picker.Item label="3" value="3" />
+            <Picker.Item label="Select Number" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="1" value="1" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="2" value="2" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="3" value="3" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
         
@@ -196,9 +206,9 @@ const Step2Details = ({ formData, handleInputChange }) => {
             style={categoryContentStyles.picker}
             onValueChange={(value) => handleInputChange('bathroom1Type', value)}
           >
-            <Picker.Item label="Select Type" value="" />
-            <Picker.Item label="Indian" value="Indian" />
-            <Picker.Item label="Western" value="Western" />
+            <Picker.Item label="Select Type" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="Indian" value="Indian" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="Western" value="Western" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
         
@@ -212,9 +222,9 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 style={categoryContentStyles.picker}
                 onValueChange={(value) => handleInputChange('bathroom2Type', value)}
               >
-                <Picker.Item label="Select Type" value="" />
-                <Picker.Item label="Indian" value="Indian" />
-                <Picker.Item label="Western" value="Western" />
+                <Picker.Item label="Select Type" value="" color="#999999" style={{ fontSize: 15 }} />
+                <Picker.Item label="Indian" value="Indian" color="#000000" style={{ fontSize: 15 }} />
+                <Picker.Item label="Western" value="Western" color="#000000" style={{ fontSize: 15 }} />
               </Picker>
             </View>
           </>
@@ -230,9 +240,9 @@ const Step2Details = ({ formData, handleInputChange }) => {
                 style={categoryContentStyles.picker}
                 onValueChange={(value) => handleInputChange('bathroom3Type', value)}
               >
-                <Picker.Item label="Select Type" value="" />
-                <Picker.Item label="Indian" value="Indian" />
-                <Picker.Item label="Western" value="Western" />
+                <Picker.Item label="Select Type" value="" color="#999999" style={{ fontSize: 15 }} />
+                <Picker.Item label="Indian" value="Indian" color="#000000" style={{ fontSize: 15 }} />
+                <Picker.Item label="Western" value="Western" color="#000000" style={{ fontSize: 15 }} />
               </Picker>
             </View>
           </>
@@ -246,11 +256,11 @@ const Step2Details = ({ formData, handleInputChange }) => {
             style={categoryContentStyles.picker}
             onValueChange={(value) => handleInputChange('floorNo', value)}
           >
-            <Picker.Item label="Select Floor" value="" />
-            <Picker.Item label="Ground Floor" value="Ground Floor" />
-            <Picker.Item label="1st Floor" value="1st Floor" />
-            <Picker.Item label="2nd Floor" value="2nd Floor" />
-            <Picker.Item label="3rd Floor" value="3rd Floor" />
+            <Picker.Item label="Select Floor" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="Ground Floor" value="Ground Floor" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="1st Floor" value="1st Floor" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="2nd Floor" value="2nd Floor" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="3rd Floor" value="3rd Floor" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
       </View>

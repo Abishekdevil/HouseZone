@@ -26,6 +26,76 @@ const propertyListStyles = StyleSheet.create({
     color: 'white',
     fontSize: 13
   },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 15,
+    width: '100%'
+  },
+  filterBox: {
+    flex: 1,
+    marginHorizontal: 5,
+    backgroundColor: '#fff',
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: '#4A90E2',
+    padding: 10,
+    minHeight: 40,
+    justifyContent: 'center'
+  },
+  filterLabel: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#333',
+    
+  },
+  picker: {
+    height: 16,
+    backgroundColor: '#ffffffff',
+    borderRadius: 4,
+    marginBottom: 20,
+    borderColor: '#4A90E2'
+  },
+  selectedFiltersContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginBottom: 15,
+    width: '100%'
+  },
+  selectedFilterBox: {
+    backgroundColor: '#e1f0fa',
+    borderRadius: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 15,
+    marginRight: 10,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#4A90E2'
+  },
+  selectedFilterContent: {
+    flexDirection: 'row',
+    alignItems: 'center'
+  },
+  selectedFilterText: {
+    fontSize: 14,
+    color: '#333',
+    marginRight: 8
+  },
+  removeFilterButton: {
+    backgroundColor: '#4A90E2',
+    borderRadius: 12,
+    width: 24,
+    height: 24,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  removeFilterText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold'
+  },
   list: {
     flex: 1,
     width: '100%'

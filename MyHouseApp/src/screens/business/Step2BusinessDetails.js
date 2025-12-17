@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, ScrollView, TextInput, StyleSheet, CheckBox, TouchableOpacity } from "react-native";
+import { View, Text, ScrollView, TextInput, StyleSheet, TouchableOpacity } from "react-native";
 import { Picker } from '@react-native-picker/picker';
 import categoryContentStyles from '../../styles/categoryContentStyles';
 
@@ -38,29 +38,33 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
         {/* Door Facing Dropdown */}
         <View style={categoryContentStyles.inputContainer}>
           <Text style={categoryContentStyles.label}>Door Facing *</Text>
-          <Picker
-            selectedValue={formData.doorFacing || ""}
-            style={categoryContentStyles.picker}
-            onValueChange={(value) => handleInputChange("doorFacing", value)}
-          >
-            {doorFacingOptions.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
+          <View style={categoryContentStyles.pickerContainer}>
+            <Picker
+              selectedValue={formData.doorFacing || ""}
+              style={categoryContentStyles.picker}
+              onValueChange={(value) => handleInputChange("doorFacing", value)}
+            >
+              {doorFacingOptions.map((option) => (
+                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              ))}
+            </Picker>
+          </View>
         </View>
 
         {/* Property Type Dropdown */}
         <View style={categoryContentStyles.inputContainer}>
           <Text style={categoryContentStyles.label}>Property Type *</Text>
-          <Picker
-            selectedValue={formData.propertyType || ""}
-            style={categoryContentStyles.picker}
-            onValueChange={(value) => handleInputChange("propertyType", value)}
-          >
-            {propertyTypeOptions.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
+          <View style={categoryContentStyles.pickerContainer}>
+            <Picker
+              selectedValue={formData.propertyType || ""}
+              style={categoryContentStyles.picker}
+              onValueChange={(value) => handleInputChange("propertyType", value)}
+            >
+              {propertyTypeOptions.map((option) => (
+                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              ))}
+            </Picker>
+          </View>
         </View>
 
         {/* Total Area - Length and Breadth */}
@@ -68,7 +72,7 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
           <Text style={categoryContentStyles.label}>Total Area *</Text>
           <View style={styles.areaContainer}>
             <View style={styles.areaInputContainer}>
-              <Text style={styles.areaLabel}>Length (feet)</Text>
+              <Text style={styles.areaSubLabel}>Length (feet)</Text>
               <TextInput
                 style={categoryContentStyles.input}
                 value={formData.areaLength || ""}
@@ -78,7 +82,7 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
               />
             </View>
             <View style={styles.areaInputContainer}>
-              <Text style={styles.areaLabel}>Breadth (feet)</Text>
+              <Text style={styles.areaSubLabel}>Breadth (feet)</Text>
               <TextInput
                 style={categoryContentStyles.input}
                 value={formData.areaBreadth || ""}
@@ -118,15 +122,17 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
         {/* Floor Number Dropdown */}
         <View style={categoryContentStyles.inputContainer}>
           <Text style={categoryContentStyles.label}>Floor Number *</Text>
-          <Picker
-            selectedValue={formData.floorNumber || ""}
-            style={categoryContentStyles.picker}
-            onValueChange={(value) => handleInputChange("floorNumber", value)}
-          >
-            {floorOptions.map((option) => (
-              <Picker.Item key={option.value} label={option.label} value={option.value} />
-            ))}
-          </Picker>
+          <View style={categoryContentStyles.pickerContainer}>
+            <Picker
+              selectedValue={formData.floorNumber || ""}
+              style={categoryContentStyles.picker}
+              onValueChange={(value) => handleInputChange("floorNumber", value)}
+            >
+              {floorOptions.map((option) => (
+                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              ))}
+            </Picker>
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -141,10 +147,11 @@ const styles = StyleSheet.create({
   areaInputContainer: {
     flex: 0.48,
   },
-  areaLabel: {
+  areaSubLabel: {
     fontSize: 14,
     marginBottom: 5,
     color: '#333',
+    fontWeight: 'bold',
   },
   radioContainer: {
     flexDirection: 'row',

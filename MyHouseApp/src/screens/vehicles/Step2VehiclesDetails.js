@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import { View, Text, ScrollView, TextInput, StyleSheet, Picker, TouchableOpacity } from "react-native";
-import { Picker as RNPicker } from '@react-native-picker/picker';
+import { View, Text, ScrollView, TextInput, StyleSheet, TouchableOpacity } from "react-native";
+import { Picker } from '@react-native-picker/picker';
 import categoryContentStyles from '../../styles/categoryContentStyles';
 
 const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
@@ -85,15 +85,17 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
             {/* Vehicle Type Dropdown */}
             <View style={categoryContentStyles.inputContainer}>
               <Text style={categoryContentStyles.label}>Vehicle Type *</Text>
-              <RNPicker
-                selectedValue={vehicle.type || ""}
-                style={categoryContentStyles.picker}
-                onValueChange={(value) => updateVehicle(vehicle.id, "type", value)}
-              >
-                {vehicleTypeOptions.map((option) => (
-                  <RNPicker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </RNPicker>
+              <View style={categoryContentStyles.pickerContainer}>
+                <Picker
+                  selectedValue={vehicle.type || ""}
+                  style={categoryContentStyles.picker}
+                  onValueChange={(value) => updateVehicle(vehicle.id, "type", value)}
+                >
+                  {vehicleTypeOptions.map((option) => (
+                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             {/* Vehicle Name */}
@@ -121,29 +123,33 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
             {/* Seat Capacity Dropdown */}
             <View style={categoryContentStyles.inputContainer}>
               <Text style={categoryContentStyles.label}>Seat Capacity *</Text>
-              <RNPicker
-                selectedValue={vehicle.seatCapacity || ""}
-                style={categoryContentStyles.picker}
-                onValueChange={(value) => updateVehicle(vehicle.id, "seatCapacity", value)}
-              >
-                {seatCapacityOptions.map((option) => (
-                  <RNPicker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </RNPicker>
+              <View style={categoryContentStyles.pickerContainer}>
+                <Picker
+                  selectedValue={vehicle.seatCapacity || ""}
+                  style={categoryContentStyles.picker}
+                  onValueChange={(value) => updateVehicle(vehicle.id, "seatCapacity", value)}
+                >
+                  {seatCapacityOptions.map((option) => (
+                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             {/* Fuel Type Dropdown */}
             <View style={categoryContentStyles.inputContainer}>
               <Text style={categoryContentStyles.label}>Fuel Type *</Text>
-              <RNPicker
-                selectedValue={vehicle.fuelType || ""}
-                style={categoryContentStyles.picker}
-                onValueChange={(value) => updateVehicle(vehicle.id, "fuelType", value)}
-              >
-                {fuelTypeOptions.map((option) => (
-                  <RNPicker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </RNPicker>
+              <View style={categoryContentStyles.pickerContainer}>
+                <Picker
+                  selectedValue={vehicle.fuelType || ""}
+                  style={categoryContentStyles.picker}
+                  onValueChange={(value) => updateVehicle(vehicle.id, "fuelType", value)}
+                >
+                  {fuelTypeOptions.map((option) => (
+                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             {/* AC Availability Radio Buttons */}
@@ -174,15 +180,17 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
             {/* Charge Type Dropdown */}
             <View style={categoryContentStyles.inputContainer}>
               <Text style={categoryContentStyles.label}>Charge Type *</Text>
-              <RNPicker
-                selectedValue={vehicle.chargeType || ""}
-                style={categoryContentStyles.picker}
-                onValueChange={(value) => updateVehicle(vehicle.id, "chargeType", value)}
-              >
-                {chargeTypeOptions.map((option) => (
-                  <RNPicker.Item key={option.value} label={option.label} value={option.value} />
-                ))}
-              </RNPicker>
+              <View style={categoryContentStyles.pickerContainer}>
+                <Picker
+                  selectedValue={vehicle.chargeType || ""}
+                  style={categoryContentStyles.picker}
+                  onValueChange={(value) => updateVehicle(vehicle.id, "chargeType", value)}
+                >
+                  {chargeTypeOptions.map((option) => (
+                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  ))}
+                </Picker>
+              </View>
             </View>
 
             {/* Charge Amount */}

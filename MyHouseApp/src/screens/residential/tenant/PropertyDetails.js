@@ -73,7 +73,7 @@ export default function PropertyDetails() {
   // Helper function to format dimensions
   const formatDimensions = (length, breadth, totalArea) => {
     if (length && breadth) {
-      return `${length}ft × ${breadth}ft = ${totalArea} sq.ft`;
+      return `${length} × ${breadth} = ${totalArea} sq.ft`;
     }
     return 'N/A';
   };
@@ -114,7 +114,7 @@ export default function PropertyDetails() {
               
               {/* Hall Details */}
               <View style={propertyDetailsStyles.detailRow}>
-                <Text style={propertyDetailsStyles.label}>Hall Size:</Text>
+                <Text style={propertyDetailsStyles.label}>Hall Size (L X B):</Text>
                 <Text style={propertyDetailsStyles.value}>
                   {formatDimensions(
                     property.houseDetails.hallLength,
@@ -126,7 +126,7 @@ export default function PropertyDetails() {
               
               {/* Kitchen Details */}
               <View style={propertyDetailsStyles.detailRow}>
-                <Text style={propertyDetailsStyles.label}>Kitchen Size:</Text>
+                <Text style={propertyDetailsStyles.label}>Kitchen Size (L X B):</Text>
                 <Text style={propertyDetailsStyles.value}>
                   {formatDimensions(
                     property.houseDetails.kitchenLength,
@@ -144,10 +144,10 @@ export default function PropertyDetails() {
               
               {property.houseDetails.bedrooms && property.houseDetails.bedrooms.map((bedroom, index) => (
                 <View key={index} style={propertyDetailsStyles.detailRow}>
-                  <Text style={propertyDetailsStyles.label}>Bedroom {bedroom.bedroomNumber}:</Text>
+                  <Text style={propertyDetailsStyles.label}>Bedroom {bedroom.bedroomNumber} (L X B):</Text>
                   <Text style={propertyDetailsStyles.value}>
                     {bedroom.length && bedroom.breadth 
-                      ? `${bedroom.length}ft × ${bedroom.breadth}ft = ${bedroom.totalArea} sq.ft` 
+                      ? `${bedroom.length} × ${bedroom.breadth}= ${bedroom.totalArea} sq.ft` 
                       : 'N/A'}
                   </Text>
                 </View>

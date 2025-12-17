@@ -58,6 +58,7 @@ export default function Signup() {
           <TextInput
             style={categoryContentStyles.input}
             placeholder="Name"
+            placeholderTextColor="#999999"
             value={name}
             onChangeText={setName}
           />
@@ -65,6 +66,7 @@ export default function Signup() {
           <TextInput
             style={categoryContentStyles.input}
             placeholder="Age"
+            placeholderTextColor="#999999"
             keyboardType="number-pad"
             value={age}
             onChangeText={setAge}
@@ -73,6 +75,7 @@ export default function Signup() {
           <TextInput
             style={categoryContentStyles.input}
             placeholder="Contact Number"
+            placeholderTextColor="#999999"
             keyboardType="phone-pad"
             value={contact}
             onChangeText={setContact}
@@ -81,6 +84,7 @@ export default function Signup() {
           <TextInput
             style={categoryContentStyles.input}
             placeholder="Email"
+            placeholderTextColor="#999999"
             keyboardType="email-address"
             value={email}
             onChangeText={setEmail}
@@ -89,6 +93,7 @@ export default function Signup() {
           <TextInput
             style={categoryContentStyles.input}
             placeholder="Password"
+            placeholderTextColor="#999999"
             secureTextEntry
             value={password}
             onChangeText={setPassword}

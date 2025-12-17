@@ -91,8 +91,14 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                   style={categoryContentStyles.picker}
                   onValueChange={(value) => updateVehicle(vehicle.id, "type", value)}
                 >
-                  {vehicleTypeOptions.map((option) => (
-                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  {vehicleTypeOptions.map((option, index) => (
+                    <Picker.Item 
+                      key={option.value} 
+                      label={option.label} 
+                      value={option.value} 
+                      color={index === 0 ? '#999999' : '#000000'}
+                      style={{ fontSize: 15 }}
+                    />
                   ))}
                 </Picker>
               </View>
@@ -106,6 +112,7 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                 value={vehicle.name || ""}
                 onChangeText={(value) => updateVehicle(vehicle.id, "name", value)}
                 placeholder="Enter vehicle name"
+                placeholderTextColor="#999999"
               />
             </View>
 
@@ -117,6 +124,7 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                 value={vehicle.model || ""}
                 onChangeText={(value) => updateVehicle(vehicle.id, "model", value)}
                 placeholder="Enter vehicle model"
+                placeholderTextColor="#999999"
               />
             </View>
 
@@ -129,8 +137,14 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                   style={categoryContentStyles.picker}
                   onValueChange={(value) => updateVehicle(vehicle.id, "seatCapacity", value)}
                 >
-                  {seatCapacityOptions.map((option) => (
-                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  {seatCapacityOptions.map((option, index) => (
+                    <Picker.Item 
+                      key={option.value} 
+                      label={option.label} 
+                      value={option.value} 
+                      color={index === 0 ? '#999999' : '#000000'}
+                      style={{ fontSize: 15 }}
+                    />
                   ))}
                 </Picker>
               </View>
@@ -145,8 +159,14 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                   style={categoryContentStyles.picker}
                   onValueChange={(value) => updateVehicle(vehicle.id, "fuelType", value)}
                 >
-                  {fuelTypeOptions.map((option) => (
-                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  {fuelTypeOptions.map((option, index) => (
+                    <Picker.Item 
+                      key={option.value} 
+                      label={option.label} 
+                      value={option.value} 
+                      color={index === 0 ? '#999999' : '#000000'}
+                      style={{ fontSize: 15 }}
+                    />
                   ))}
                 </Picker>
               </View>
@@ -186,8 +206,14 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                   style={categoryContentStyles.picker}
                   onValueChange={(value) => updateVehicle(vehicle.id, "chargeType", value)}
                 >
-                  {chargeTypeOptions.map((option) => (
-                    <Picker.Item key={option.value} label={option.label} value={option.value} />
+                  {chargeTypeOptions.map((option, index) => (
+                    <Picker.Item 
+                      key={option.value} 
+                      label={option.label} 
+                      value={option.value} 
+                      color={index === 0 ? '#999999' : '#000000'}
+                      style={{ fontSize: 15 }}
+                    />
                   ))}
                 </Picker>
               </View>
@@ -201,6 +227,7 @@ const Step2VehiclesDetails = ({ formData, handleInputChange }) => {
                 value={vehicle.chargeAmount || ""}
                 onChangeText={(value) => updateVehicle(vehicle.id, "chargeAmount", value)}
                 placeholder="Enter charge amount"
+                placeholderTextColor="#999999"
                 keyboardType="numeric"
               />
             </View>

@@ -44,8 +44,14 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
               style={categoryContentStyles.picker}
               onValueChange={(value) => handleInputChange("doorFacing", value)}
             >
-              {doorFacingOptions.map((option) => (
-                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              {doorFacingOptions.map((option, index) => (
+                <Picker.Item 
+                  key={option.value} 
+                  label={option.label} 
+                  value={option.value} 
+                  color={index === 0 ? '#999999' : '#000000'}
+                  style={{ fontSize: 15 }}
+                />
               ))}
             </Picker>
           </View>
@@ -60,8 +66,14 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
               style={categoryContentStyles.picker}
               onValueChange={(value) => handleInputChange("propertyType", value)}
             >
-              {propertyTypeOptions.map((option) => (
-                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              {propertyTypeOptions.map((option, index) => (
+                <Picker.Item 
+                  key={option.value} 
+                  label={option.label} 
+                  value={option.value} 
+                  color={index === 0 ? '#999999' : '#000000'}
+                  style={{ fontSize: 15 }}
+                />
               ))}
             </Picker>
           </View>
@@ -128,8 +140,14 @@ const Step2BusinessDetails = ({ formData, handleInputChange }) => {
               style={categoryContentStyles.picker}
               onValueChange={(value) => handleInputChange("floorNumber", value)}
             >
-              {floorOptions.map((option) => (
-                <Picker.Item key={option.value} label={option.label} value={option.value} />
+              {floorOptions.map((option, index) => (
+                <Picker.Item 
+                  key={option.value} 
+                  label={option.label} 
+                  value={option.value} 
+                  color={index === 0 ? '#999999' : '#000000'}
+                  style={{ fontSize: 15 }}
+                />
               ))}
             </Picker>
           </View>

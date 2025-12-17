@@ -61,6 +61,12 @@ const propertyDetailsStyles = StyleSheet.create({
     fontWeight: '600',
     flex: 1.2
   },
+  separator: {
+    fontSize: 15,
+    color: '#34495e',
+    fontWeight: '600',
+    paddingHorizontal: 5
+  },
   value: {
     fontSize: 15,
     color: '#2c3e50',
@@ -70,5 +76,3 @@ const propertyDetailsStyles = StyleSheet.create({
     paddingLeft: 10
   }
 });
-
-export default propertyDetailsStyles;

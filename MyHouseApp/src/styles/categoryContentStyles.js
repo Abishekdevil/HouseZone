@@ -39,6 +39,10 @@ const categoryContentStyles = StyleSheet.create({
     backgroundColor: '#fff',
     color: '#000',
   },
+  inputContainer: {
+    marginBottom: 15,
+    width: '100%',
+  },
   pickerContainer: {
     height: 45,
     borderColor: '#4A90E2',
@@ -50,7 +54,7 @@ const categoryContentStyles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   picker: {
-    height: 45,
+    height: 65,
     width: '100%',
   },
   label: {

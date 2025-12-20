@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, TextInput, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import dummyStyles from '../styles/dummyStyles';
-import adminModalStyles from '../styles/adminModalStyles';
+import adminModalStyles from '../styles/admin/adminModalStyles';
 
 export default function Dummy() {
   const navigation = useNavigation();

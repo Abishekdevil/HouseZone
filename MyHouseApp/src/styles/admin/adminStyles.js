@@ -84,6 +84,27 @@ const adminStyles = StyleSheet.create({
     color: "#333",
     textAlign: "center",
   },
+  // Grid layout for buttons
+  buttonsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'center',
+    width: '100%',
+    maxWidth: 800,
+  },
+  // Individual dashboard button
+  dashboardButton: {
+    backgroundColor: "#800080", // Purple color for admin
+    paddingVertical: 15,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    width: '48%', // Almost 50% to account for margins
+    margin: '1%',
+    alignItems: "center",
+    marginBottom: 10,
+    minHeight: 60,
+    justifyContent: 'center',
+  },
   logoutButton: {
     backgroundColor: "#ff6b6b", // Red color for logout
     paddingVertical: 15,
@@ -92,6 +113,7 @@ const adminStyles = StyleSheet.create({
     width: "100%",
     maxWidth: 400,
     alignItems: "center",
+    marginTop: 20,
   },
 });
 

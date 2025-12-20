@@ -16,8 +16,20 @@ import AddVehicles from '../screens/vehicles/index';
 import PropertiesList from '../screens/residential/tenant';
 import PropertyDetails from '../screens/residential/tenant/PropertyDetails';
 import TenantDetails from '../screens/residential/tenant/TenantDetails';
-// Removed AdminPassword import as it's no longer used
-import AdminDashboard from '../screens/AdminDashboard';
+// Import all admin components
+import { 
+  AdminDashboard,
+  SignupPage,
+  LoginPage,
+  ResidentialOwnerPage,
+  ResidentialTenantPage,
+  BusinessOwnerPage,
+  BusinessTenantPage,
+  VehiclesOwnerPage,
+  VehiclesTenantPage,
+  MachineryOwnerPage,
+  MachineryTenantPage
+} from '../screens/admin';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,8 +52,18 @@ export default function AppNavigator() {
         <Stack.Screen name="PropertiesList" component={PropertiesList} />
         <Stack.Screen name="PropertyDetails" component={PropertyDetails} />
         <Stack.Screen name="TenantDetails" component={TenantDetails} />
-        {/* Removed AdminPassword screen as it's no longer used */}
+        {/* Admin screens */}
         <Stack.Screen name="AdminDashboard" component={AdminDashboard} />
+        <Stack.Screen name="SignupPage" component={SignupPage} />
+        <Stack.Screen name="LoginPage" component={LoginPage} />
+        <Stack.Screen name="ResidentialOwnerPage" component={ResidentialOwnerPage} />
+        <Stack.Screen name="ResidentialTenantPage" component={ResidentialTenantPage} />
+        <Stack.Screen name="BusinessOwnerPage" component={BusinessOwnerPage} />
+        <Stack.Screen name="BusinessTenantPage" component={BusinessTenantPage} />
+        <Stack.Screen name="VehiclesOwnerPage" component={VehiclesOwnerPage} />
+        <Stack.Screen name="VehiclesTenantPage" component={VehiclesTenantPage} />
+        <Stack.Screen name="MachineryOwnerPage" component={MachineryOwnerPage} />
+        <Stack.Screen name="MachineryTenantPage" component={MachineryTenantPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

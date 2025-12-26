@@ -9,15 +9,19 @@ const handleFetchRequest = async (url, options) => {
     const response = await fetch(url, options);
     console.log(`Response status: ${response.status}`);
     
-    const result = await response.json();
-    
     if (!response.ok) {
-      throw new Error(result.message || `HTTP ${response.status}: ${response.statusText}`);
+      const errorText = await response.text();
+      console.error(`HTTP error ${response.status}:`, errorText);
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
     }
     
+    const result = await response.json();
     return result;
   } catch (error) {
     console.error(`Fetch error for ${url}:`, error);
+    if (error.message.includes('Network request failed')) {
+      throw new Error('Network connection failed. Please check your internet connection.');
+    }
     throw error;
   }
 };

@@ -7,9 +7,10 @@ const categoryContentStyles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: "flex-start",
+    alignItems: "flex-start",
     padding: 15,
+    width: '100%',
   },
   pageTitle: {
     fontSize: 22,
@@ -63,21 +64,8 @@ const categoryContentStyles = StyleSheet.create({
     marginBottom: 5,
     alignSelf: 'flex-start',
     color: '#000',
-  },
-  value: {
-    fontSize: 15,
-    marginBottom: 12,
-    alignSelf: 'flex-start',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  buttonRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 15,
-    width: '100%',
+    flex: 1,
+    flexWrap: 'wrap',
   },
   button: {
     paddingVertical: 12,
@@ -90,10 +78,10 @@ const categoryContentStyles = StyleSheet.create({
     backgroundColor: '#4A90E2',
   },
   secondaryButton: {
-    backgroundColor: '#FF6B6B', // Changed from grey to red/pink color
+    backgroundColor: '#FF6B6B',
   },
   cancelButton: {
-    backgroundColor: '#FF6B6B', // Added specific cancel button style
+    backgroundColor: '#FF6B6B', 
   },
   buttonText: {
     color: 'white',
@@ -122,6 +110,40 @@ const categoryContentStyles = StyleSheet.create({
     marginBottom: 12,
     textAlign: 'center',
     color: '#4A90E2',
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 15,
+    width: '100%',
+  },
+  checkbox: {
+    marginRight: 10,
+  },
+  customCheckbox: {
+    width: 20,
+    height: 20,
+    borderWidth: 2,
+    borderColor: '#4A90E2',
+    borderRadius: 3,
+    marginRight: 10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  checkboxChecked: {
+    backgroundColor: '#4A90E2',
+  },
+  checkboxCheckmark: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 15,
+    width: '100%',
   },
 });
 

@@ -23,3 +23,6 @@ USE cdmrental;
 --
 -- 3. bedroom_sizes - For residential owner step 2 bedroom details
 --    Columns: roNo, bedroom_number, length, breadth
+--
+-- 4. resownpay - For residential owner step 3 payment details
+--    Columns: roNo, advance_amount, monthly_rent, lease_amount

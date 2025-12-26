@@ -9,6 +9,8 @@ import { getAllProperties } from './api';
 import propertyListStyles from './propertyListStyles';
 
 const PropertyCard = ({ property, onViewDetails }) => {
+  if (!property) return null;
+  
   return (
     <View style={propertyListStyles.card}>
       {/* Left side - Placeholder for image */}
@@ -18,10 +20,13 @@ const PropertyCard = ({ property, onViewDetails }) => {
       
       {/* Right side - Property details */}
       <View style={propertyListStyles.detailsContainer}>
-        <Text style={propertyListStyles.location}>{property.area}</Text>
+        <Text style={propertyListStyles.location}>{property.area || 'Unknown'}</Text>
         <View style={propertyListStyles.propertyInfo}>
           <Text style={propertyListStyles.bedroomsText}>{property.bedrooms ? `${property.bedrooms} BHK` : 'N/A'}</Text>
-          <Text style={propertyListStyles.rentText}>₹{property.rent || 'N/A'}/month</Text>
+          {/* Display lease amount if available, otherwise show monthly rent */}
+          <Text style={propertyListStyles.rentText}>
+            ₹{property.leaseAmount ? property.leaseAmount : (property.rent || 'N/A')}{property.leaseAmount ? '' : '/month'}
+          </Text>
         </View>
         <Text style={propertyListStyles.viewMoreText} onPress={() => onViewDetails(property.id)}>View More</Text>
       </View>
@@ -63,11 +68,17 @@ export default function PropertiesList() {
   const loadProperties = async (filters = {}) => {
     try {
       setLoading(true);
+      console.log('Fetching properties...');
       const data = await getAllProperties(filters);
-      setProperties(data);
+      console.log('Properties fetched:', data);
+      setProperties(data || []);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load properties. Please try again.');
       console.error('Error loading properties:', error);
+      setProperties([]);
+      Alert.alert(
+        'Error', 
+        `Failed to load properties: ${error.message || 'Unknown error'}. Please check your internet connection and try again.`
+      );
     } finally {
       setLoading(false);
     }
@@ -84,12 +95,19 @@ export default function PropertiesList() {
   }, [rentFilter, bedroomFilter, areaFilter]);
 
   const handleViewDetails = (propertyId) => {
-    navigation.navigate('PropertyDetails', { propertyId });
+    try {
+      console.log('Navigating to PropertyDetails with ID:', propertyId);
+      navigation.navigate('PropertyDetails', { propertyId });
+    } catch (error) {
+      console.error('Navigation error:', error);
+      Alert.alert('Error', 'Failed to navigate to property details.');
+    }
   };
 
-  const renderProperty = ({ item }) => (
-    <PropertyCard property={item} onViewDetails={handleViewDetails} />
-  );
+  const renderProperty = ({ item }) => {
+    if (!item) return null;
+    return <PropertyCard property={item} onViewDetails={handleViewDetails} />;
+  };
 
   // Get label for bedroom filter value
   const getBedroomLabel = (value) => {

@@ -59,9 +59,51 @@ const BaseForm = ({
   const validateStep2 = () => true;
 
   const validateStep3 = () => {
-    if (!formData.advanceAmount || !formData.rentAmount) {
-      Alert.alert("Validation Error", "Please fill in all required fields in Step 3");
-      return false;
+    // For residential category, implement special validation for lease amount
+    if (category === "residential") {
+      const hasLeaseAmount = formData.leaseAmount && !isNaN(parseFloat(formData.leaseAmount)) && parseFloat(formData.leaseAmount) > 0;
+      const hasAdvanceAmount = formData.advanceAmount && !isNaN(parseFloat(formData.advanceAmount)) && parseFloat(formData.advanceAmount) > 0;
+      const hasRentAmount = formData.rentAmount && !isNaN(parseFloat(formData.rentAmount)) && parseFloat(formData.rentAmount) > 0;
+      
+      // If lease amount is provided, advance and rent are optional
+      // If lease amount is not provided, both advance and rent are required
+      if (!hasLeaseAmount && (!hasAdvanceAmount || !hasRentAmount)) {
+        Alert.alert("Validation Error", "Please fill in both Advance Amount and Monthly Rent when Lease Amount is not provided, or provide a Lease Amount");
+        return false;
+      }
+      
+      // Additional validation: ensure all amounts are valid numbers and within reasonable ranges
+      if (hasAdvanceAmount && (parseFloat(formData.advanceAmount) <= 0 || parseFloat(formData.advanceAmount) > 999999999)) {
+        Alert.alert("Validation Error", "Advance Amount must be a positive number and not exceed 999,999,999");
+        return false;
+      }
+      
+      if (hasRentAmount && (parseFloat(formData.rentAmount) <= 0 || parseFloat(formData.rentAmount) > 999999999)) {
+        Alert.alert("Validation Error", "Monthly Rent must be a positive number and not exceed 999,999,999");
+        return false;
+      }
+      
+      if (hasLeaseAmount && (parseFloat(formData.leaseAmount) <= 0 || parseFloat(formData.leaseAmount) > 999999999)) {
+        Alert.alert("Validation Error", "Lease Amount must be a positive number and not exceed 999,999,999");
+        return false;
+      }
+    } else {
+      // For non-residential categories, use the original validation
+      if (!formData.advanceAmount || !formData.rentAmount) {
+        Alert.alert("Validation Error", "Please fill in all required fields in Step 3");
+        return false;
+      }
+      
+      // Validate that amounts are valid numbers
+      if (formData.advanceAmount && (isNaN(parseFloat(formData.advanceAmount)) || parseFloat(formData.advanceAmount) <= 0)) {
+        Alert.alert("Validation Error", "Advance Amount must be a positive number");
+        return false;
+      }
+      
+      if (formData.rentAmount && (isNaN(parseFloat(formData.rentAmount)) || parseFloat(formData.rentAmount) <= 0)) {
+        Alert.alert("Validation Error", "Monthly Rent must be a positive number");
+        return false;
+      }
     }
 
     const images = formData.images || [];
@@ -269,7 +311,8 @@ const BaseForm = ({
                   const step3Data = {
                     roNo: roNo,
                     advanceAmount: formData.advanceAmount,
-                    monthlyRent: formData.rentAmount
+                    monthlyRent: formData.rentAmount,
+                    leaseAmount: formData.leaseAmount
                   };
 
                   console.log("Saving step 3 data:", step3Data);

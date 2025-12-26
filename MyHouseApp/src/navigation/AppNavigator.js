@@ -28,7 +28,8 @@ import {
   VehiclesOwnerPage,
   VehiclesTenantPage,
   MachineryOwnerPage,
-  MachineryTenantPage
+  MachineryTenantPage,
+  ConditionsPage
 } from '../screens/admin';
 
 const Stack = createNativeStackNavigator();
@@ -64,6 +65,7 @@ export default function AppNavigator() {
         <Stack.Screen name="VehiclesTenantPage" component={VehiclesTenantPage} />
         <Stack.Screen name="MachineryOwnerPage" component={MachineryOwnerPage} />
         <Stack.Screen name="MachineryTenantPage" component={MachineryTenantPage} />
+        <Stack.Screen name="ConditionsPage" component={ConditionsPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );

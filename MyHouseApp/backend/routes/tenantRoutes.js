@@ -57,22 +57,30 @@ router.get('/residential/properties/:id', async (req, res) => {
     const propertyDetails = step1Rows[0];
     
     // Get step 2 details (house details)
-    const [step2Rows] = await pool.execute(
-      `SELECT 
-        roNo,
-        facing_direction as facingDirection,
-        hall_length as hallLength,
-        hall_breadth as hallBreadth,
-        number_of_bedrooms as numberOfBedrooms,
-        kitchen_length as kitchenLength,
-        kitchen_breadth as kitchenBreadth,
-        number_of_bathrooms as numberOfBathrooms,
-        bathroom1_type as bathroom1Type,
-        floor_number as floorNumber
-      FROM resownho 
-      WHERE roNo = ?`,
-      [id]
-    );
+    let step2Rows = [];
+    try {
+      [step2Rows] = await pool.execute(
+        `SELECT 
+          roNo,
+          facing_direction as facingDirection,
+          hall_length as hallLength,
+          hall_breadth as hallBreadth,
+          number_of_bedrooms as numberOfBedrooms,
+          kitchen_length as kitchenLength,
+          kitchen_breadth as kitchenBreadth,
+          number_of_bathrooms as numberOfBathrooms,
+          bathroom1_type as bathroom1Type,
+          floor_number as floorNumber,
+          parking_2wheeler as parking2Wheeler,
+          parking_4wheeler as parking4Wheeler
+        FROM resownho 
+        WHERE roNo = ?`,
+        [id]
+      );
+    } catch (queryError) {
+      console.error('Error executing step 2 query:', queryError);
+      step2Rows = [];
+    }
     
     if (step2Rows.length > 0) {
       // Calculate total square feet for hall, kitchen, and bedrooms

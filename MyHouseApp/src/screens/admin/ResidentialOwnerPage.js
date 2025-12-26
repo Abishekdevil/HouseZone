@@ -207,6 +207,16 @@ export default function ResidentialOwnerPage() {
               <Text style={residentialOwnerStyles.detailText}>
                 <Text style={residentialOwnerStyles.detailLabel}>Floor Number:</Text> <Text style={residentialOwnerStyles.detailValue}>{item.floorNumber || 'N/A'}</Text>
               </Text>
+              {item.parking2Wheeler !== undefined && (
+                <Text style={residentialOwnerStyles.detailText}>
+                  <Text style={residentialOwnerStyles.detailLabel}>Parking (2-Wheeler):</Text> <Text style={residentialOwnerStyles.detailValue}>{item.parking2Wheeler || 'N/A'}</Text>
+                </Text>
+              )}
+              {item.parking4Wheeler !== undefined && (
+                <Text style={residentialOwnerStyles.detailText}>
+                  <Text style={residentialOwnerStyles.detailLabel}>Parking (4-Wheeler):</Text> <Text style={residentialOwnerStyles.detailValue}>{item.parking4Wheeler || 'N/A'}</Text>
+                </Text>
+              )}
             </View>
             
             {/* Location & Nearby Amenities Section (similar to tenant page) */}

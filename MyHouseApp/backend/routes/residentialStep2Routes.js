@@ -21,6 +21,8 @@ router.post('/residential/step2', async (req, res) => {
       noOfBathrooms,
       bathroom1Type,
       floorNo,
+      parking2Wheeler,
+      parking4Wheeler,
       bedrooms
     } = req.body;
 
@@ -28,8 +30,9 @@ router.post('/residential/step2', async (req, res) => {
     await connection.execute(
       `INSERT INTO resownho (
         roNo, facing_direction, hall_length, hall_breadth, number_of_bedrooms, 
-        kitchen_length, kitchen_breadth, number_of_bathrooms, bathroom1_type, floor_number
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        kitchen_length, kitchen_breadth, number_of_bathrooms, bathroom1_type, floor_number,
+        parking_2wheeler, parking_4wheeler
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         roNo,
         facingDirection,
@@ -40,7 +43,9 @@ router.post('/residential/step2', async (req, res) => {
         parseFloat(kitchenBreadth),
         parseInt(noOfBathrooms),
         bathroom1Type,
-        floorNo
+        floorNo,
+        parking2Wheeler || null,
+        parking4Wheeler || 'No'
       ]
     );
 

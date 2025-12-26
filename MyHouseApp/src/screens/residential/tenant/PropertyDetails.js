@@ -24,11 +24,13 @@ export default function PropertyDetails() {
   const loadPropertyDetails = async () => {
     try {
       setLoading(true);
+      console.log('Fetching property details for ID:', propertyId);
       const data = await getPropertyDetails(propertyId);
+      console.log('Received property data:', data);
       setProperty(data);
     } catch (error) {
-      Alert.alert('Error', 'Failed to load property details. Please try again.');
       console.error('Error loading property details:', error);
+      Alert.alert('Error', `Failed to load property details: ${error.message || 'Unknown error'}`);
       navigation.goBack();
     } finally {
       setLoading(false);
@@ -183,11 +185,27 @@ export default function PropertyDetails() {
                 <Text style={propertyDetailsStyles.value}>{property.houseDetails.bathroom1Type || 'N/A'}</Text>
               </View>
               
-              {/* Parking Slot */}
-              <View style={propertyDetailsStyles.detailRow}>
-                <Text style={propertyDetailsStyles.label}>Parking Slot:</Text>
-                <Text style={propertyDetailsStyles.value}>N/A</Text>
-              </View>
+              {/* Parking Details */}
+              {property.houseDetails && (
+                <>
+                  <View style={propertyDetailsStyles.detailRow}>
+                    <Text style={propertyDetailsStyles.label}>Parking (2-Wheeler):</Text>
+                    <Text style={propertyDetailsStyles.value}>
+                      {(property.houseDetails.parking2Wheeler !== undefined && property.houseDetails.parking2Wheeler !== null) 
+                        ? property.houseDetails.parking2Wheeler 
+                        : 'N/A'}
+                    </Text>
+                  </View>
+                  <View style={propertyDetailsStyles.detailRow}>
+                    <Text style={propertyDetailsStyles.label}>Parking (4-Wheeler):</Text>
+                    <Text style={propertyDetailsStyles.value}>
+                      {(property.houseDetails.parking4Wheeler !== undefined && property.houseDetails.parking4Wheeler !== null) 
+                        ? property.houseDetails.parking4Wheeler 
+                        : 'N/A'}
+                    </Text>
+                  </View>
+                </>
+              )}
             </View>
           )}
           

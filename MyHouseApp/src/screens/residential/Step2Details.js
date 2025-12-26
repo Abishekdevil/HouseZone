@@ -263,6 +263,34 @@ const Step2Details = ({ formData, handleInputChange }) => {
             <Picker.Item label="3rd Floor" value="3rd Floor" color="#000000" style={{ fontSize: 15 }} />
           </Picker>
         </View>
+        
+        {/* Parking (2-Wheeler) */}
+        <Text style={categoryContentStyles.label}>Parking (2-Wheeler)</Text>
+        <View style={categoryContentStyles.pickerContainer}>
+          <Picker
+            selectedValue={formData.parking2Wheeler}
+            style={categoryContentStyles.picker}
+            onValueChange={(value) => handleInputChange('parking2Wheeler', value)}
+          >
+            <Picker.Item label="Select Number" value="" color="#999999" style={{ fontSize: 15 }} />
+            <Picker.Item label="1" value="1" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="2" value="2" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="3" value="3" color="#000000" style={{ fontSize: 15 }} />
+          </Picker>
+        </View>
+        
+        {/* Parking (4-Wheeler) */}
+        <Text style={categoryContentStyles.label}>Parking (4-Wheeler)</Text>
+        <View style={categoryContentStyles.pickerContainer}>
+          <Picker
+            selectedValue={formData.parking4Wheeler}
+            style={categoryContentStyles.picker}
+            onValueChange={(value) => handleInputChange('parking4Wheeler', value)}
+          >
+            <Picker.Item label="No" value="No" color="#000000" style={{ fontSize: 15 }} />
+            <Picker.Item label="Yes" value="Yes" color="#000000" style={{ fontSize: 15 }} />
+          </Picker>
+        </View>
       </View>
     </ScrollView>
   );

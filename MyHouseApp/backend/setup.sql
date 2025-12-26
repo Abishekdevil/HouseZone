@@ -19,7 +19,8 @@ USE cdmrental;
 --
 -- 2. resownho - For residential owner step 2 common details
 --    Columns: roNo, facing_direction, hall_length, hall_breadth, number_of_bedrooms, 
---             kitchen_length, kitchen_breadth, number_of_bathrooms, bathroom1_type, floor_number
+--             kitchen_length, kitchen_breadth, number_of_bathrooms, bathroom1_type, floor_number,
+--             parking_2wheeler, parking_4wheeler
 --
 -- 3. bedroom_sizes - For residential owner step 2 bedroom details
 --    Columns: roNo, bedroom_number, length, breadth

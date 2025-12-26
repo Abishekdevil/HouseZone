@@ -297,6 +297,8 @@ const BaseForm = ({
                 noOfBathrooms: formData.noOfBathrooms,
                 bathroom1Type: formData.bathroom1Type,
                 floorNo: formData.floorNo,
+                parking2Wheeler: formData.parking2Wheeler,
+                parking4Wheeler: formData.parking4Wheeler,
                 bedrooms: bedrooms
               };
 

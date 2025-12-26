@@ -17,4 +17,6 @@ export const step2InitialData = {
   bathroom2Type: "",
   bathroom3Type: "",
   floorNo: "",
+  parking2Wheeler: "",
+  parking4Wheeler: "No",
 };

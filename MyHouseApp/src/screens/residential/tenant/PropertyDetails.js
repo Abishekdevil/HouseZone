@@ -94,14 +94,26 @@ export default function PropertyDetails() {
           {/* Payment Details */}
           <View style={propertyDetailsStyles.section}>
             <Text style={propertyDetailsStyles.sectionTitle}>Payment Information</Text>
-            <View style={propertyDetailsStyles.firstDetailRow}>
-              <Text style={propertyDetailsStyles.label}>Advance Amount:</Text>
-              <Text style={propertyDetailsStyles.value}>₹{property.paymentDetails?.advanceAmount || 'N/A'}</Text>
-            </View>
-            <View style={propertyDetailsStyles.detailRow}>
-              <Text style={propertyDetailsStyles.label}>Monthly Rent:</Text>
-              <Text style={propertyDetailsStyles.value}>₹{property.paymentDetails?.monthlyRent || 'N/A'}</Text>
-            </View>
+            
+            {/* Display lease amount if available, otherwise show advance and monthly rent */}
+            {property.paymentDetails?.leaseAmount ? (
+              <View style={propertyDetailsStyles.firstDetailRow}>
+                <Text style={propertyDetailsStyles.label}>Lease Amount:</Text>
+                <Text style={propertyDetailsStyles.value}>₹{property.paymentDetails.leaseAmount}</Text>
+              </View>
+            ) : (
+              <>
+                <View style={propertyDetailsStyles.firstDetailRow}>
+                  <Text style={propertyDetailsStyles.label}>Advance Amount:</Text>
+                  <Text style={propertyDetailsStyles.value}>₹{property.paymentDetails?.advanceAmount || 'N/A'}</Text>
+                </View>
+                <View style={propertyDetailsStyles.detailRow}>
+                  <Text style={propertyDetailsStyles.label}>Monthly Rent:</Text>
+                  <Text style={propertyDetailsStyles.value}>₹{property.paymentDetails?.monthlyRent || 'N/A'}</Text>
+                </View>
+              </>
+            )}
+            
             <View style={propertyDetailsStyles.detailRow}>
               <Text style={propertyDetailsStyles.label}>Agreement:</Text>
               <Text style={propertyDetailsStyles.value}>N/A</Text>

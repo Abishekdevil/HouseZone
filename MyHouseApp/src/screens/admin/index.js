@@ -9,6 +9,7 @@ import VehiclesOwnerPage from './VehiclesOwnerPage';
 import VehiclesTenantPage from './VehiclesTenantPage';
 import MachineryOwnerPage from './MachineryOwnerPage';
 import MachineryTenantPage from './MachineryTenantPage';
+import ConditionsPage from './ConditionsPage';
 
 export { 
   AdminDashboard,
@@ -21,5 +22,6 @@ export {
   VehiclesOwnerPage,
   VehiclesTenantPage,
   MachineryOwnerPage,
-  MachineryTenantPage
+  MachineryTenantPage,
+  ConditionsPage
 };

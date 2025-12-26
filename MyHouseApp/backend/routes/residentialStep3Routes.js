@@ -10,18 +10,20 @@ router.post('/residential/step3', async (req, res) => {
     const {
       roNo,
       advanceAmount,
-      monthlyRent
+      monthlyRent,
+      leaseAmount
     } = req.body;
 
     // Insert residential step 3 details into existing resownpay table
     const [result] = await pool.execute(
       `INSERT INTO resownpay (
-        roNo, advance_amount, monthly_rent
-      ) VALUES (?, ?, ?)`,
+        roNo, advance_amount, monthly_rent, lease_amount
+      ) VALUES (?, ?, ?, ?)`,
       [
         roNo,
-        parseFloat(advanceAmount),
-        parseFloat(monthlyRent)
+        advanceAmount ? parseFloat(advanceAmount) || 0 : null,
+        monthlyRent ? parseFloat(monthlyRent) || 0 : null,
+        leaseAmount ? parseFloat(leaseAmount) || null : null
       ]
     );
 

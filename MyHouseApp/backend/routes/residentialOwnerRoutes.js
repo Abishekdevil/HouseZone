@@ -27,7 +27,8 @@ router.get('/residential/owners', async (req, res) => {
         rh.bathroom1_type as bathroom1Type,
         rh.floor_number as floorNumber,
         rp.advance_amount as advanceAmount,
-        rp.monthly_rent as monthlyRent
+        rp.monthly_rent as monthlyRent,
+        rp.lease_amount as leaseAmount
       FROM resowndet rd
       LEFT JOIN resownho rh ON rd.roNo = rh.roNo
       LEFT JOIN resownpay rp ON rd.roNo = rp.roNo

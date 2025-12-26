@@ -84,6 +84,17 @@ const Step3PaymentImages = ({ formData, handleInputChange, handleImageSelect, ha
           keyboardType="numeric"
         />
 
+        {/* Lease Amount */}
+        <Text style={categoryContentStyles.label}>Lease Amount (₹)</Text>
+        <TextInput
+          style={categoryContentStyles.input}
+          placeholder="Lease Amount"
+          placeholderTextColor="#999999"
+          value={formData.leaseAmount}
+          onChangeText={(value) => handleInputChange('leaseAmount', value)}
+          keyboardType="numeric"
+        />
+
         {/* Image Upload Section */}
         <Text style={[categoryContentStyles.label, { marginTop: 20 }]}>
           Upload House Images *

@@ -12,7 +12,8 @@ router.get('/residential/properties', async (req, res) => {
         rd.roNo as id,
         rd.roArea as area,
         rh.number_of_bedrooms as bedrooms,
-        rp.monthly_rent as rent
+        rp.monthly_rent as rent,
+        rp.lease_amount as leaseAmount
       FROM resowndet rd
       INNER JOIN resownho rh ON rd.roNo = rh.roNo
       INNER JOIN resownpay rp ON rd.roNo = rp.roNo
@@ -113,9 +114,11 @@ router.get('/residential/properties/:id', async (req, res) => {
       `SELECT 
         roNo,
         advance_amount as advanceAmount,
-        monthly_rent as monthlyRent
+        monthly_rent as monthlyRent,
+        lease_amount as leaseAmount
       FROM resownpay 
       WHERE roNo = ?`,
+    
       [id]
     );
     

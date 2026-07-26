@@ -102,46 +102,46 @@ export default function JobGiverJobSeekerDetails({ route }) {
         subtitle="View full details"
       />
       <View style={{ flex: 1, paddingHorizontal: 16 }}>
-        {jobSeeker.status && (
-          <View style={{ 
-            marginVertical: 12, 
-            padding: 12, 
-            backgroundColor: getStatusColor() + '20',
-            borderRadius: 12,
-            alignItems: 'center'
-          }}>
-            <Text style={{ 
-              color: getStatusColor(), 
-              fontWeight: 'bold', 
-              fontSize: 16,
-              textTransform: 'capitalize'
-            }}>
-              Status: {jobSeeker.status}
-            </Text>
-          </View>
-        )}
-        {jobSeeker.shopName && (
-          <View style={tps.section}>
-            <Text style={tps.sectionTitle}>Applied to</Text>
-            <View style={tps.firstDetailRow}>
-              <Text style={tps.label}>Company Name</Text>
-              <Text style={tps.value}>{jobSeeker.shopName}</Text>
-            </View>
-            <View style={tps.detailRow}>
-              <Text style={tps.label}>Company Type</Text>
-              <Text style={tps.value}>{jobSeeker.shopType}</Text>
-            </View>
-            <View style={tps.detailRow}>
-              <Text style={tps.label}>Location</Text>
-              <Text style={tps.value}>{jobSeeker.area}, {jobSeeker.city}</Text>
-            </View>
-          </View>
-        )}
         <ScrollView
           style={propertyDetailsStyles.scrollContainer}
-          contentContainerStyle={propertyDetailsStyles.scrollContentContainer}
+          contentContainerStyle={[propertyDetailsStyles.scrollContentContainer, { paddingTop: 12 }]}
           nestedScrollEnabled
         >
+          {jobSeeker.status && (
+            <View style={{ 
+              marginVertical: 12, 
+              padding: 12, 
+              backgroundColor: getStatusColor() + '20',
+              borderRadius: 12,
+              alignItems: 'center'
+            }}>
+              <Text style={{ 
+                color: getStatusColor(), 
+                fontWeight: 'bold', 
+                fontSize: 16,
+                textTransform: 'capitalize'
+              }}>
+                Status: {jobSeeker.status}
+              </Text>
+            </View>
+          )}
+          {jobSeeker.shopName && (
+            <View style={tps.section}>
+              <Text style={tps.sectionTitle}>Applied to</Text>
+              <View style={tps.firstDetailRow}>
+                <Text style={tps.label}>Company Name</Text>
+                <Text style={tps.value}>{jobSeeker.shopName}</Text>
+              </View>
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Company Type</Text>
+                <Text style={tps.value}>{jobSeeker.shopType}</Text>
+              </View>
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Location</Text>
+                <Text style={tps.value}>{jobSeeker.area}, {jobSeeker.city}</Text>
+              </View>
+            </View>
+          )}
           {/* Personal Info Section */}
           <View style={tps.section}>
             <Text style={tps.sectionTitle}>Personal Information</Text>
@@ -212,11 +212,11 @@ export default function JobGiverJobSeekerDetails({ route }) {
       </View>
 
       {(!jobSeeker.status || jobSeeker.status === 'pending') && (
-        <View style={[tps.bottomBar, { paddingHorizontal: 16, paddingBottom: 12, flexDirection: 'row', gap: 12 }]}>
-          <TouchableOpacity style={[tps.btnOutline, { flex: 1, borderColor: '#e74c3c' }]} onPress={handleDecline}>
+        <View style={[tps.bottomBar, { paddingHorizontal: 16, paddingBottom: 12, flexDirection: 'row' }]}>
+          <TouchableOpacity style={[tps.btnOutline, { flex: 1, borderColor: '#e74c3c', marginRight: 6 }]} onPress={handleDecline}>
             <Text style={[tps.btnOutlineText, { color: '#e74c3c' }]}>Decline</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[tps.btnPrimary, { flex: 1, backgroundColor: '#27ae60' }]} onPress={handleAccept}>
+          <TouchableOpacity style={[tps.btnPrimary, { flex: 1, backgroundColor: '#27ae60', marginLeft: 6 }]} onPress={handleAccept}>
             <Text style={tps.btnPrimaryText}>Accept</Text>
           </TouchableOpacity>
         </View>

@@ -220,7 +220,33 @@ export default function JobSeeker() {
 
   const listHeader = () => (
     <View style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 16, marginTop: 16 }}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 16, gap: 8 }}>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          {hasApplications && (
+            <TouchableOpacity
+              style={{
+                paddingVertical: 8,
+                paddingHorizontal: 12,
+                backgroundColor: tps.colors.primary,
+                borderRadius: 8,
+              }}
+              onPress={() => navigation.navigate('JobSeekerMyApplications')}
+            >
+              <Text style={{ color: 'white', fontWeight: '600' }}>My Applications</Text>
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity
+            style={{
+              paddingVertical: 8,
+              paddingHorizontal: 12,
+              backgroundColor: '#10b981',
+              borderRadius: 8,
+            }}
+            onPress={() => navigation.navigate('JobSeekerProfileForm')}
+          >
+            <Text style={{ color: 'white', fontWeight: '600' }}>Add My Profile</Text>
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity
           style={tps.filterBtn}
           onPress={() => setIsFilterVisible(!isFilterVisible)}
@@ -300,23 +326,7 @@ export default function JobSeeker() {
         />
       </View>
 
-      <View style={{ marginTop: 16 }}>
-        {hasApplications && (
-          <TouchableOpacity
-            style={{
-              paddingVertical: 8,
-              paddingHorizontal: 12,
-              backgroundColor: tps.colors.primary,
-              borderRadius: 8,
-              marginBottom: 16,
-              alignSelf: 'flex-start'
-            }}
-            onPress={() => navigation.navigate('JobSeekerMyApplications')}
-          >
-            <Text style={{ color: 'white', fontWeight: '600' }}>My Applications</Text>
-          </TouchableOpacity>
-        )}
-        
+      <View style={{ marginTop: 8 }}>
         {!hasApplications && (
           <TouchableOpacity
             style={{

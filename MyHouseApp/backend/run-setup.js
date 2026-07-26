@@ -25,7 +25,10 @@ const runSetup = async () => {
       user: process.env.DB_USER || 'root',
       password: process.env.DB_PASSWORD || '',
       port: parseInt(process.env.DB_PORT) || 3306,
-      database: process.env.DB_NAME || 'defaultdb'
+      database: process.env.DB_NAME || 'defaultdb',
+      ssl: {
+        rejectUnauthorized: false
+      }
     });
 
     console.log('Connected to database');

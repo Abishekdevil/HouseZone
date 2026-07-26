@@ -280,14 +280,8 @@ CREATE TABLE IF NOT EXISTS mactenant (
     FOREIGN KEY (machineryId) REFERENCES machinarydet(id) ON DELETE CASCADE
 );
 
--- Drop existing job tables first
-DROP TABLE IF EXISTS jobseeker;
-DROP TABLE IF EXISTS jobgiversalary;
-DROP TABLE IF EXISTS jobgiverjob;
-DROP TABLE IF EXISTS jobgiverdet;
-
 -- 20. jobgiverdet table (job giver personal info)
-CREATE TABLE jobgiverdet (
+CREATE TABLE IF NOT EXISTS jobgiverdet (
     id INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     shop_name VARCHAR(255) NOT NULL,
@@ -300,7 +294,7 @@ CREATE TABLE jobgiverdet (
 );
 
 -- 21. jobgiverjob table (job details)
-CREATE TABLE jobgiverjob (
+CREATE TABLE IF NOT EXISTS jobgiverjob (
     id INT AUTO_INCREMENT PRIMARY KEY,
     jobgiverdet_id INT NOT NULL,
     job_title VARCHAR(255) NOT NULL,
@@ -312,14 +306,15 @@ CREATE TABLE jobgiverjob (
     experience_field VARCHAR(255) NOT NULL,
     working_time_start VARCHAR(50) NOT NULL,
     working_time_end VARCHAR(50) NOT NULL,
+    working_timings VARCHAR(255),
     FOREIGN KEY (jobgiverdet_id) REFERENCES jobgiverdet(id) ON DELETE CASCADE
 );
 
 -- 22. jobgiversalary table (salary and skills)
-CREATE TABLE jobgiversalary (
+CREATE TABLE IF NOT EXISTS jobgiversalary (
     id INT AUTO_INCREMENT PRIMARY KEY,
     jobgiverdet_id INT NOT NULL,
-    salary_offering DECIMAL(10,2) NOT NULL,
+    salary_offering VARCHAR(100) NOT NULL,
     other_skills TEXT,
     shop_photo1 VARCHAR(500),
     shop_photo2 VARCHAR(500),
@@ -328,7 +323,7 @@ CREATE TABLE jobgiversalary (
     FOREIGN KEY (jobgiverdet_id) REFERENCES jobgiverdet(id) ON DELETE CASCADE
 );
 -- 23. jobseeker table (job seeker details)
-CREATE TABLE jobseeker (      
+CREATE TABLE IF NOT EXISTS jobseeker (      
     id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(255) NOT NULL,
     mobile_number VARCHAR(20) NOT NULL,
@@ -347,5 +342,21 @@ CREATE TABLE jobseeker (
     status VARCHAR(50) DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (job_giver_job_id) REFERENCES jobgiverdet(id) ON DELETE CASCADE
+);
+
+-- 24. job_seeker_profiles table (job seeker add my profile data)
+CREATE TABLE IF NOT EXISTS job_seeker_profiles (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    signup_id INT,
+    name VARCHAR(255) NOT NULL,
+    age INT NOT NULL,
+    gender VARCHAR(50) NOT NULL,
+    education VARCHAR(100) NOT NULL,
+    experience_status VARCHAR(20) NOT NULL, -- values: 'fresher', 'experienced'
+    experience_years VARCHAR(50), -- only if experience_status = 'experienced'
+    experience_field VARCHAR(255), -- only if experience_status = 'experienced'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (signup_id) REFERENCES signup(id) ON DELETE SET NULL
 );
 

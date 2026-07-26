@@ -50,10 +50,31 @@ export const saveJobSeeker = async (data) => {
   });
 };
 
+export const saveJobSeekerProfile = async (data) => {
+  return handleFetchRequest(`${API_BASE_URL}/jobseeker/profile`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+};
+
+export const getJobSeekerProfile = async (query = {}) => {
+  const queryParams = new URLSearchParams();
+  if (query.signupId) queryParams.append('signupId', String(query.signupId));
+  if (query.name) queryParams.append('name', query.name);
+  if (query.age) queryParams.append('age', String(query.age));
+  if (query.gender) queryParams.append('gender', query.gender);
+  if (query.education) queryParams.append('education', query.education);
+  const url = `${API_BASE_URL}/jobseeker/profile${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
+  return handleFetchRequest(url);
+};
+
 export default {
   getJobListings,
   getJobDetails,
   getJobSeekerById,
   getJobSeekerApplications,
-  saveJobSeeker
+  saveJobSeeker,
+  saveJobSeekerProfile,
+  getJobSeekerProfile
 };

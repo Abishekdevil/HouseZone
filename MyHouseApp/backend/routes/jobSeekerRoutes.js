@@ -264,4 +264,135 @@ router.get('/jobseeker/applications/:mobileNumber', async (req, res) => {
   }
 });
 
+// POST save job seeker profile (Add My Profile form)
+router.post('/jobseeker/profile', async (req, res) => {
+  try {
+    console.log('[jobSeekerProfile] req.body:', req.body);
+    const {
+      signupId,
+      name,
+      age,
+      gender,
+      education,
+      experienceStatus,
+      experienceYears,
+      experienceField
+    } = req.body;
+
+    // Basic validation
+    if (!name || !age || !gender || !education || !experienceStatus) {
+      return res.status(400).json({ message: 'All required fields must be provided.' });
+    }
+    if (experienceStatus === 'experienced') {
+      if (!experienceYears || !experienceField) {
+        return res.status(400).json({ message: 'Experience years and field are required for experienced.' });
+      }
+    }
+
+    // Upsert: if there's a row with same signupId or same (name, age, gender, education) signature, update, else insert
+    let profileId = null;
+    let existingRow = null;
+
+    if (signupId) {
+      const [rows] = await pool.execute(
+        'SELECT * FROM job_seeker_profiles WHERE signup_id = ? LIMIT 1',
+        [signupId]
+      );
+      existingRow = rows[0];
+    }
+    if (!existingRow) {
+      const [rows] = await pool.execute(
+        'SELECT * FROM job_seeker_profiles WHERE name = ? AND age = ? AND gender = ? AND education = ? LIMIT 1',
+        [name, age, gender, education]
+      );
+      existingRow = rows[0];
+    }
+
+    if (existingRow) {
+      profileId = existingRow.id;
+      const updateSql = `
+        UPDATE job_seeker_profiles SET
+          signup_id = ?,
+          name = ?,
+          age = ?,
+          gender = ?,
+          education = ?,
+          experience_status = ?,
+          experience_years = ?,
+          experience_field = ?
+        WHERE id = ?
+      `;
+      const updateValues = [
+        signupId !== undefined ? signupId : null,
+        name,
+        age,
+        gender,
+        education,
+        experienceStatus,
+        experienceStatus === 'experienced' ? (experienceYears || null) : null,
+        experienceStatus === 'experienced' ? (experienceField || null) : null,
+        profileId
+      ];
+      await pool.execute(updateSql, updateValues);
+      res.status(200).json({ profileId, message: 'Profile updated successfully' });
+    } else {
+      const insertSql = `
+        INSERT INTO job_seeker_profiles (
+          signup_id, name, age, gender, education, experience_status, experience_years, experience_field
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      `;
+      const insertValues = [
+        signupId !== undefined ? signupId : null,
+        name,
+        age,
+        gender,
+        education,
+        experienceStatus,
+        experienceStatus === 'experienced' ? (experienceYears || null) : null,
+        experienceStatus === 'experienced' ? (experienceField || null) : null
+      ];
+      const [result] = await pool.execute(insertSql, insertValues);
+      profileId = result.insertId;
+      res.status(201).json({ profileId, message: 'Profile saved successfully' });
+    }
+  } catch (error) {
+    console.error('[jobSeekerProfile] Error saving profile:', error);
+    console.error('[jobSeekerProfile] Error stack:', error.stack);
+    res.status(500).json({ message: 'Error saving profile', error: error.message });
+  }
+});
+
+// GET job seeker profile (by signupId, or by fallback matcher fields in query)
+router.get('/jobseeker/profile', async (req, res) => {
+  try {
+    const { signupId, name, age, gender, education } = req.query;
+    let row = null;
+
+    if (signupId) {
+      const [rows] = await pool.execute(
+        'SELECT * FROM job_seeker_profiles WHERE signup_id = ? LIMIT 1',
+        [signupId]
+      );
+      row = rows[0];
+    }
+    if (!row && name && age && gender && education) {
+      const [rows] = await pool.execute(
+        'SELECT * FROM job_seeker_profiles WHERE name = ? AND age = ? AND gender = ? AND education = ? LIMIT 1',
+        [name, age, gender, education]
+      );
+      row = rows[0];
+    }
+
+    if (!row) {
+      return res.status(200).json(null);
+    }
+
+    const profile = convertKeysToCamelCase(row);
+    res.status(200).json(profile);
+  } catch (error) {
+    console.error('[jobSeekerProfile] Error fetching profile:', error);
+    res.status(500).json({ message: 'Error fetching profile', error: error.message });
+  }
+});
+
 export default router;

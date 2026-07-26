@@ -36,11 +36,14 @@ const upload = multer({ storage });
 router.post('/jobgiver/step1', async (req, res) => {
   try {
     console.log('Step 1 req.body:', req.body);
-    const { name, shopName, shopType, area, city, landmark, contact } = req.body;
+    const { name, ownerName, shopName, shopType, area, city, landmark, contact } = req.body;
+
+    // Accept either ownerName (new) or name (old) field, prefer ownerName
+    const finalName = ownerName || name;
 
     // Convert undefined to null
     const values = [
-      name,
+      finalName,
       shopName,
       shopType,
       area,
@@ -66,11 +69,14 @@ router.post('/jobgiver/step1', async (req, res) => {
 router.post('/jobgiver/step2', async (req, res) => {
   try {
     console.log('Step 2 req.body:', req.body);
-    const { jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd } = req.body;
+    const { jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd, workTimings, workingTimings } = req.body;
 
-    console.log('Inserting into jobgiverjob with values:', [jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd]);
-    const sql = `INSERT INTO jobgiverjob (jobgiverdet_id, job_title, employment_type, age, gender, education, experience_year, experience_field, working_time_start, working_time_end) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    await pool.execute(sql, [jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd]);
+    // Accept either workingTimings or workTimings
+    const finalWorkingTimings = workingTimings || workTimings || null;
+
+    console.log('Inserting into jobgiverjob with values:', [jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd, finalWorkingTimings]);
+    const sql = `INSERT INTO jobgiverjob (jobgiverdet_id, job_title, employment_type, age, gender, education, experience_year, experience_field, working_time_start, working_time_end, working_timings) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    await pool.execute(sql, [jobGiverId, jobTitle, employmentType, age, gender, education, experienceYear, experienceField, workingTimeStart, workingTimeEnd, finalWorkingTimings]);
 
     res.status(201).json({ message: 'Job giver step 2 saved successfully' });
   } catch (error) {

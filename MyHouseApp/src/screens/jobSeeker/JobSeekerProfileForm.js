@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   View,
@@ -19,6 +19,7 @@ import { useTheme } from "../../context/ThemeContext";
 import OwnerFormField from "../../shared/components/OwnerFormField";
 import OwnerFormCard from "../../shared/components/OwnerFormCard";
 import OptionSelectField from "../../shared/components/OptionSelectField";
+import { saveJobSeekerProfile, getJobSeekerProfile } from "./logic/api";
 
 const genderOptions = [
   { label: "Male", value: "male" },
@@ -48,6 +49,7 @@ const experienceYearOptions = [
 ];
 
 const initialProfileData = {
+  signupId: null,
   name: "",
   age: "",
   gender: "",
@@ -94,19 +96,41 @@ export default function JobSeekerProfileForm() {
     React.useCallback(() => {
       const loadProfile = async () => {
         try {
-          const stored = await AsyncStorage.getItem("jobSeekerProfile");
-          if (stored) {
-            const parsed = JSON.parse(stored);
-            setFormData((prev) => ({ ...prev, ...parsed }));
+          // Try to load from database via API first
+          let loaded = null;
+          const userDetailsRaw = await AsyncStorage.getItem("userDetails");
+          const userDetails = userDetailsRaw ? JSON.parse(userDetailsRaw) : null;
+          const signupId = userDetails?.id || userDetails?.signupId;
+          const query = {};
+          if (signupId) query.signupId = signupId;
+          try {
+            loaded = await getJobSeekerProfile(query);
+          } catch (_err) {
+            loaded = null;
           }
-          // Also prefill from userDetails if available
-          const userDetails = await AsyncStorage.getItem("userDetails");
-          if (userDetails) {
-            const user = JSON.parse(userDetails);
-            const accountContact = user?.contact || user?.contact_number;
+
+          if (loaded && typeof loaded === "object") {
+            setFormData((prev) => ({ ...prev, ...loaded }));
+          } else {
+            // Fallback: try to load from AsyncStorage if available
+            const stored = await AsyncStorage.getItem("jobSeekerProfile");
+            if (stored) {
+              const parsed = JSON.parse(stored);
+              setFormData((prev) => ({ ...prev, ...parsed }));
+            }
+          }
+
+          // Prefill name from userDetails if still empty
+          if (!String(formData.name || "").trim() && userDetails?.name) {
             setFormData((prev) => ({
               ...prev,
-              name: prev.name || user?.name || "",
+              name: prev.name || userDetails.name,
+              signupId: prev.signupId || signupId || null,
+            }));
+          } else if (signupId) {
+            setFormData((prev) => ({
+              ...prev,
+              signupId: prev.signupId || signupId,
             }));
           }
         } catch (err) {
@@ -125,13 +149,47 @@ export default function JobSeekerProfileForm() {
     if (!validateForm(formData)) return;
     try {
       setIsSaving(true);
-      await AsyncStorage.setItem("jobSeekerProfile", JSON.stringify(formData));
-      Alert.alert("Success", "Your profile has been saved successfully!", [
-        {
-          text: "OK",
-          onPress: () => navigation.goBack(),
-        },
-      ]);
+
+      // First try saving to the backend database
+      const submitData = { ...formData };
+      if (formData.experienceStatus === "fresher") {
+        submitData.experienceYears = "";
+        submitData.experienceField = "";
+      }
+
+      let saved = false;
+      try {
+        const response = await saveJobSeekerProfile(submitData);
+        if (response?.profileId) {
+          await AsyncStorage.setItem("jobSeekerProfileId", String(response.profileId));
+          saved = true;
+        }
+      } catch (saveErr) {
+        console.warn("[JobSeekerProfileForm] Backend save failed, using fallback AsyncStorage:", saveErr);
+      }
+
+      // Always also save a copy to AsyncStorage as a fallback
+      await AsyncStorage.setItem("jobSeekerProfile", JSON.stringify(submitData));
+
+      if (saved) {
+        Alert.alert("Success", "Your profile has been saved to the database!", [
+          {
+            text: "OK",
+            onPress: () => navigation.goBack(),
+          },
+        ]);
+      } else {
+        Alert.alert(
+          "Saved Locally",
+          "Profile was saved on your device. Backend save failed — please check your server connection.",
+          [
+            {
+              text: "OK",
+              onPress: () => navigation.goBack(),
+            },
+          ]
+        );
+      }
     } catch (error) {
       console.error("[JobSeekerProfileForm] Save error:", error);
       Alert.alert("Error", "Failed to save your profile. Please try again.");

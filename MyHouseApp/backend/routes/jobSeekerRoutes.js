@@ -395,4 +395,37 @@ router.get('/jobseeker/profile', async (req, res) => {
   }
 });
 
+// GET all job seeker profiles (browse)
+router.get('/jobseeker/profiles/all', async (req, res) => {
+  try {
+    const [rows] = await pool.execute(
+      'SELECT * FROM job_seeker_profiles ORDER BY created_at DESC'
+    );
+    const profiles = convertKeysToCamelCase(rows);
+    res.status(200).json(profiles);
+  } catch (error) {
+    console.error('[jobSeekerProfile] Error fetching all profiles:', error);
+    res.status(500).json({ message: 'Error fetching profiles', error: error.message });
+  }
+});
+
+// GET job seeker profile by ID
+router.get('/jobseeker/profiles/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const [rows] = await pool.execute(
+      'SELECT * FROM job_seeker_profiles WHERE id = ? LIMIT 1',
+      [id]
+    );
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Profile not found' });
+    }
+    const profile = convertKeysToCamelCase(rows[0]);
+    res.status(200).json(profile);
+  } catch (error) {
+    console.error('[jobSeekerProfile] Error fetching profile by id:', error);
+    res.status(500).json({ message: 'Error fetching profile', error: error.message });
+  }
+});
+
 export default router;

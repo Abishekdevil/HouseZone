@@ -69,6 +69,14 @@ export const getJobSeekerProfile = async (query = {}) => {
   return handleFetchRequest(url);
 };
 
+export const getAllJobSeekerProfiles = async () => {
+  return handleFetchRequest(`${API_BASE_URL}/jobseeker/profiles/all`);
+};
+
+export const getJobSeekerProfileById = async (profileId) => {
+  return handleFetchRequest(`${API_BASE_URL}/jobseeker/profiles/${profileId}`);
+};
+
 export default {
   getJobListings,
   getJobDetails,
@@ -76,5 +84,7 @@ export default {
   getJobSeekerApplications,
   saveJobSeeker,
   saveJobSeekerProfile,
-  getJobSeekerProfile
+  getJobSeekerProfile,
+  getAllJobSeekerProfiles,
+  getJobSeekerProfileById
 };

@@ -28,6 +28,7 @@ import JobSeekerMyApplications from '../screens/jobSeeker/JobSeekerMyApplication
 import JobSeekerProfileForm from '../screens/jobSeeker/JobSeekerProfileForm';
 import JobGiverJobSeekers from '../screens/jobGiver/JobGiverJobSeekers';
 import JobGiverJobSeekerDetails from '../screens/jobGiver/JobGiverJobSeekerDetails';
+import JobSeekerProfileDetails from '../screens/jobGiver/JobSeekerProfileDetails';
 import Profile from '../screens/Profile';
 import MyHistory from '../screens/MyHistory';
 import Settings from '../screens/Settings';
@@ -70,6 +71,7 @@ export default function AppNavigator() {
         <Stack.Screen name="AddJobGiver" component={AddJobGiver} />
         <Stack.Screen name="JobGiverJobSeekers" component={JobGiverJobSeekers} />
         <Stack.Screen name="JobGiverJobSeekerDetails" component={JobGiverJobSeekerDetails} />
+        <Stack.Screen name="JobSeekerProfileDetails" component={JobSeekerProfileDetails} />
         <Stack.Screen name="BusinessPropertiesList" component={BusinessPropertiesList} />
         <Stack.Screen name="PropertiesList" component={PropertiesList} />
         <Stack.Screen name="PropertyDetails" component={PropertyDetails} />

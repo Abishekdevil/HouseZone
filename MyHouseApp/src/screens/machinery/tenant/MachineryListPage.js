@@ -144,40 +144,35 @@ export default function MachineryListPage() {
     const firstImage = (item.images && item.images.length > 0) 
       ? normalizeImageUrl(item.images[0]) 
       : 'https://coresg-normal.trae.ai/api/ide/v1/text-to-image?prompt=construction%20machinery%20rental%20property%20listing%20placeholder%20image&image_size=square';
+    const { colors } = tps;
+    const machineryType = item.machinery_type || item.type || "Machinery";
+    const machineryModel = item.machinery_model || item.model || "N/A";
+    const displayCharge = item.charge_per_day || item.rentPerDay || item.dailyRate || "N/A";
 
     return (
-      <View style={[machineryListStyles.card, tps.card]}>
-        {/* Left Side - Image Container */}
-        <TouchableOpacity 
-          style={machineryListStyles.imageContainer}
-          onPress={() => handleViewDetails(item.id)}
-        >
-          <Image source={{ uri: firstImage }} style={machineryListStyles.propertyImage} />
-        </TouchableOpacity>
+      <View style={tps.card}>
+        <Image
+          source={{ uri: firstImage }}
+          style={propertyListStyles.imagePlaceholder}
+          resizeMode="cover"
+        />
 
-        {/* Right Side - Details Container */}
-        <View style={machineryListStyles.detailsContainer}>
-          <TouchableOpacity onPress={() => handleViewDetails(item.id)}>
-            <Text style={machineryListStyles.areaText}>{item.area || "Unknown Area"}</Text>
-            
-            <View style={machineryListStyles.machineryInfo}>
-              <Text style={machineryListStyles.typeText}>{item.machinery_type || "Machinery"}</Text>
-              <Text style={machineryListStyles.modelText}>Model: {item.machinery_model || "N/A"}</Text>
-              <Text style={machineryListStyles.rentText}>₹{item.charge_per_day || "N/A"}/day</Text>
-              <Text style={{ fontSize: 12, color: tps.colors.subText, fontWeight: '500', marginTop: 4 }}>
-                Posted {getTimeAgo(item.createdAt)}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          
-          <View style={{ flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center' }}>
-            <TouchableOpacity 
-              style={machineryListStyles.viewMoreButton} 
-              onPress={() => handleViewDetails(item.id)}
-            >
-              <Text style={machineryListStyles.viewMoreText}>
-                View Details
-              </Text>
+        <View style={propertyListStyles.detailsContainer}>
+          <Text style={[propertyListStyles.location, { color: colors.text }]}>{item.area || "Unknown Area"}</Text>
+
+          <View style={tps.propertyInfo}>
+            <Text style={[propertyListStyles.bedroomsText, { color: colors.text }]}>{machineryType}</Text>
+            <Text style={[propertyListStyles.rentText, { color: '#27ae60', borderTopColor: colors.border }]}>
+              ₹{displayCharge}/day
+            </Text>
+          </View>
+
+          <View style={{ flexDirection: 'column' }}>
+            <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
+              Model: {machineryModel} • Posted {getTimeAgo(item.createdAt)}
+            </Text>
+            <TouchableOpacity onPress={() => handleViewDetails(item.id)}>
+              <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
             </TouchableOpacity>
           </View>
         </View>

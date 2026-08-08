@@ -156,6 +156,8 @@ const VehiclesList = () => {
         const firstImage = (typeof firstImageRaw === 'string' && firstImageRaw) 
             ? (firstImageRaw.startsWith('http') ? firstImageRaw : `${API_HOST}${firstImageRaw}`) 
             : 'https://coresg-normal.trae.ai/api/ide/v1/text-to-image?prompt=car%20or%20vehicle%20rental%20property%20listing%20placeholder%20image&image_size=square';
+        const { colors } = tps;
+        const displayName = `${item.name || 'Vehicle'}${item.model ? ` • ${item.model}` : ''}`;
         return (
             <View style={tps.card}>
                 <Image 
@@ -165,27 +167,23 @@ const VehiclesList = () => {
                 />
 
                 <View style={propertyListStyles.detailsContainer}>
-                    <Text style={propertyListStyles.location}>{item.area || item.city || 'Unknown'}</Text>
+                    <Text style={[propertyListStyles.location, { color: colors.text }]}>{item.area || item.city || 'Unknown'}</Text>
 
                     <View style={tps.propertyInfo}>
-                        <Text style={propertyListStyles.bedroomsText}>{item.name || 'Vehicle'}</Text>
-                        <Text style={propertyListStyles.rentText}>
+                        <Text style={[propertyListStyles.bedroomsText, { color: colors.text }]}>{displayName}</Text>
+                        <Text style={[propertyListStyles.rentText, { color: '#27ae60', borderTopColor: colors.border }]}>
                             ₹{item.acPrice || item.nonAcPrice || 0} / day
                         </Text>
                     </View>
 
-                    <Text style={[propertyListStyles.infoText, { marginBottom: 8 }]}>
-                        Fuel: {item.fuelType || 'N/A'}
-                    </Text>
-                    <Text style={{ marginLeft: 12, marginBottom: 8, color: tps.colors.subText, fontSize: 12, fontWeight: '500' }}>
-                        Posted {getTimeAgo(item.createdAt)}
-                    </Text>
-                    <TouchableOpacity
-                        style={propertyListStyles.viewMoreButton}
-                        onPress={() => navigation.navigate('VehicleDetails', { id: item.id })}
-                    >
-                        <Text style={propertyListStyles.viewMoreText}>View Details</Text>
-                    </TouchableOpacity>
+                    <View style={{ flexDirection: 'column' }}>
+                        <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
+                            Fuel: {item.fuelType || 'N/A'} • Posted {getTimeAgo(item.createdAt)}
+                        </Text>
+                        <TouchableOpacity onPress={() => navigation.navigate('VehicleDetails', { id: item.id })}>
+                            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
             </View>
         );

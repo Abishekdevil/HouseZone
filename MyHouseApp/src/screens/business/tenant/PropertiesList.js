@@ -27,6 +27,7 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
   const displayPropertyType = property.propertyType || property.property_type || 'N/A';
   const displayRent = property.leaseAmount || property.lease_amount || property.monthlyRent || property.monthly_rent || 'N/A';
   const rentLabel = (property.leaseAmount || property.lease_amount) ? '' : '/month';
+  const displayLocation = property.area || property.city || 'Unknown';
   
   return (
     <View style={tps.card}>
@@ -36,21 +37,21 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
         resizeMode="cover"
       />
       <View style={propertyListStyles.detailsContainer}>
+        <Text style={[propertyListStyles.location, { color: colors.text }]}>{displayLocation}</Text>
         <View style={tps.propertyInfo}>
           <Text style={[propertyListStyles.bedroomsText, { color: colors.text }]}>{displayPropertyType}</Text>
-          <Text style={[propertyListStyles.rentText, { color: '#27ae60' }]}>
+          <Text style={[propertyListStyles.rentText, { color: '#27ae60', borderTopColor: colors.border }]}>
             ₹{displayRent}{rentLabel}
           </Text>
         </View>
-        <Text style={{ marginLeft: 12, marginBottom: 8, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-          Posted {getTimeAgo(property.createdAt)}
-        </Text>
-        <TouchableOpacity
-          style={[propertyListStyles.viewMoreButton, { borderTopColor: colors.border }]}
-          onPress={() => onViewDetails(property?.id)}
-        >
-          <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View Details</Text>
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'column' }}>
+          <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
+            Posted {getTimeAgo(property.createdAt)}
+          </Text>
+          <TouchableOpacity onPress={() => onViewDetails(property?.id)}>
+            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </View>
   );

@@ -15,6 +15,54 @@ if (!fs.existsSync(jobGiverUploadsDir)) {
   fs.mkdirSync(jobGiverUploadsDir, { recursive: true });
 }
 
+// Columns that Add My Profile form expects on job_seeker_profiles.
+// Maps snake_case column name → full ALTER TABLE fragment.
+const JOB_SEEKER_PROFILE_EXPECTED_COLUMNS = [
+  {
+    name: 'area',
+    alter: 'ALTER TABLE job_seeker_profiles ADD COLUMN area VARCHAR(255) NULL AFTER experience_field'
+  },
+  {
+    name: 'city',
+    alter: 'ALTER TABLE job_seeker_profiles ADD COLUMN city VARCHAR(255) NULL AFTER area'
+  },
+  {
+    name: 'aadhar',
+    alter: 'ALTER TABLE job_seeker_profiles ADD COLUMN aadhar VARCHAR(12) NULL AFTER city'
+  },
+  {
+    name: 'phone_number',
+    alter: 'ALTER TABLE job_seeker_profiles ADD COLUMN phone_number VARCHAR(15) NULL AFTER aadhar'
+  },
+  {
+    name: 'can_join_immediately',
+    alter: 'ALTER TABLE job_seeker_profiles ADD COLUMN can_join_immediately VARCHAR(5) NULL AFTER phone_number'
+  },
+];
+
+let profileColumnsRepaired = false;
+const repairJobSeekerProfileColumns = async () => {
+  if (profileColumnsRepaired) return;
+  let doneSomething = false;
+  for (const col of JOB_SEEKER_PROFILE_EXPECTED_COLUMNS) {
+    try {
+      await pool.execute(col.alter);
+      console.log(`[jobSeekerProfile][repair] Added missing column: ${col.name}`);
+      doneSomething = true;
+    } catch (err) {
+      if (err?.code === 'ER_DUP_FIELDNAME') {
+        // already present; do nothing
+      } else {
+        console.warn(`[jobSeekerProfile][repair] Could not ensure column ${col.name}:`, err.message);
+      }
+    }
+  }
+  profileColumnsRepaired = true;
+  if (doneSomething) {
+    console.log('[jobSeekerProfile][repair] Column repair finished.');
+  }
+};
+
 // Helper function to convert snake_case to camelCase
 const toCamelCase = (str) => str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
 
@@ -293,6 +341,12 @@ router.get('/jobseeker/applications/:mobileNumber', async (req, res) => {
 // POST save job seeker profile (Add My Profile form) — ALWAYS inserts a new row.
 // The button is "Add My Profile" so each click creates a brand new card in the list.
 // No upsert / no matching — every save becomes a 4th, 5th, 6th… new card.
+//
+// Self-healing: if INSERT fails with ER_BAD_FIELD_ERROR because of missing columns
+// (e.g. migration hasn't been applied yet), we automatically run the ALTER TABLEs
+// and retry the INSERT ONCE. This means a backend restart is NOT required to fix
+// the "Unknown column 'area' in 'field list'" error — saving a profile repairs
+// the database on demand.
 router.post('/jobseeker/profile', async (req, res) => {
   try {
     console.log('[jobSeekerProfile] req.body:', req.body);
@@ -304,7 +358,12 @@ router.post('/jobseeker/profile', async (req, res) => {
       education,
       experienceStatus,
       experienceYears,
-      experienceField
+      experienceField,
+      area,
+      city,
+      aadhar,
+      phoneNumber,
+      canJoinImmediately
     } = req.body;
 
     // Basic validation
@@ -319,8 +378,9 @@ router.post('/jobseeker/profile', async (req, res) => {
 
     const insertSql = `
       INSERT INTO job_seeker_profiles (
-        signup_id, name, age, gender, education, experience_status, experience_years, experience_field
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        signup_id, name, age, gender, education, experience_status, experience_years, experience_field,
+        area, city, aadhar, phone_number, can_join_immediately
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
     const insertValues = [
       signupId !== undefined ? signupId : null,
@@ -330,10 +390,29 @@ router.post('/jobseeker/profile', async (req, res) => {
       education,
       experienceStatus,
       experienceStatus === 'experienced' ? (experienceYears || null) : null,
-      experienceStatus === 'experienced' ? (experienceField || null) : null
+      experienceStatus === 'experienced' ? (experienceField || null) : null,
+      area !== undefined ? area : null,
+      city !== undefined ? city : null,
+      aadhar !== undefined ? aadhar : null,
+      phoneNumber !== undefined ? phoneNumber : null,
+      canJoinImmediately !== undefined ? canJoinImmediately : null
     ];
-    const [result] = await pool.execute(insertSql, insertValues);
-    const profileId = result.insertId;
+
+    let insertResult;
+    try {
+      [insertResult] = await pool.execute(insertSql, insertValues);
+    } catch (insertErr) {
+      if (insertErr?.code === 'ER_BAD_FIELD_ERROR') {
+        console.warn('[jobSeekerProfile] Missing columns detected. Running on-demand repair...');
+        await repairJobSeekerProfileColumns();
+        console.log('[jobSeekerProfile] Retrying INSERT after repair...');
+        [insertResult] = await pool.execute(insertSql, insertValues);
+      } else {
+        throw insertErr;
+      }
+    }
+
+    const profileId = insertResult.insertId;
     res.status(201).json({ profileId, message: 'Profile saved successfully' });
   } catch (error) {
     console.error('[jobSeekerProfile] Error saving profile:', error);

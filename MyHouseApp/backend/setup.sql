@@ -355,6 +355,11 @@ CREATE TABLE IF NOT EXISTS job_seeker_profiles (
     experience_status VARCHAR(20) NOT NULL, -- values: 'fresher', 'experienced'
     experience_years VARCHAR(50), -- only if experience_status = 'experienced'
     experience_field VARCHAR(255), -- only if experience_status = 'experienced'
+    area VARCHAR(255),
+    city VARCHAR(255),
+    aadhar VARCHAR(12),
+    phone_number VARCHAR(15),
+    can_join_immediately VARCHAR(5), -- values: 'yes', 'no'
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (signup_id) REFERENCES signup(id) ON DELETE SET NULL

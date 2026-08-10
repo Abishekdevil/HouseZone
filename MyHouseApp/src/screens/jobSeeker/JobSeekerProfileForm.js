@@ -19,7 +19,10 @@ import { useTheme } from "../../context/ThemeContext";
 import OwnerFormField from "../../shared/components/OwnerFormField";
 import OwnerFormCard from "../../shared/components/OwnerFormCard";
 import OptionSelectField from "../../shared/components/OptionSelectField";
+import { sanitizePhoneInput } from "../../shared/utils/phoneInput";
 import { saveJobSeekerProfile, getJobSeekerProfile } from "./logic/api";
+
+const MAX_STEPS = 2;
 
 const genderOptions = [
   { label: "Male", value: "male" },
@@ -48,49 +51,142 @@ const experienceYearOptions = [
   { label: "4+ Years", value: "4plus" },
 ];
 
+const canJoinImmediatelyOptions = [
+  { label: "Yes", value: "yes" },
+  { label: "No", value: "no" },
+];
+
 const initialProfileData = {
   signupId: null,
   name: "",
   age: "",
   gender: "",
+  area: "",
+  city: "",
+  aadhar: "",
+  phoneNumber: "",
   education: "",
   experienceStatus: "",
   experienceYears: "",
   experienceField: "",
+  canJoinImmediately: "",
 };
 
-const validateForm = (data) => {
-  const required = ["name", "age", "gender", "education", "experienceStatus"];
-  for (const field of required) {
-    if (!String(data[field] || "").trim()) {
-      Alert.alert("Validation Error", "Please fill in all required fields.");
-      return false;
-    }
+const validateStep1 = (data, errors, setErrors) => {
+  const newErrors = { ...(errors || {}) };
+  let ok = true;
+
+  if (!String(data.name || "").trim()) {
+    newErrors.name = "Full name is required";
+    ok = false;
+  } else {
+    delete newErrors.name;
   }
+
   const age = parseInt(data.age, 10);
   if (isNaN(age) || age < 14 || age > 100) {
-    Alert.alert("Validation Error", "Please enter a valid age between 14 and 100.");
-    return false;
+    newErrors.age = "Age must be between 14 and 100";
+    ok = false;
+  } else {
+    delete newErrors.age;
   }
+
+  if (!String(data.gender || "").trim()) {
+    newErrors.gender = "Please select gender";
+    ok = false;
+  } else {
+    delete newErrors.gender;
+  }
+
+  if (!String(data.city || "").trim()) {
+    newErrors.city = "City/Town is required";
+    ok = false;
+  } else {
+    delete newErrors.city;
+  }
+
+  if (data.aadhar && String(data.aadhar).length > 0 && String(data.aadhar).length !== 12) {
+    newErrors.aadhar = "Aadhar number must be exactly 12 digits";
+    ok = false;
+  } else if (data.aadhar && !/^\d{12}$/.test(String(data.aadhar))) {
+    newErrors.aadhar = "Aadhar number must be exactly 12 digits";
+    ok = false;
+  } else {
+    delete newErrors.aadhar;
+  }
+
+  if (data.phoneNumber && !/^\d{10}$/.test(String(data.phoneNumber))) {
+    newErrors.phoneNumber = "Phone number must be exactly 10 digits";
+    ok = false;
+  } else if (!data.phoneNumber) {
+    newErrors.phoneNumber = "Phone number is required";
+    ok = false;
+  } else {
+    delete newErrors.phoneNumber;
+  }
+
+  if (setErrors) setErrors(newErrors);
+  if (!ok) {
+    Alert.alert("Validation Error", "Please correct the highlighted fields to proceed.");
+  }
+  return ok;
+};
+
+const validateStep2 = (data, errors, setErrors) => {
+  const newErrors = { ...(errors || {}) };
+  let ok = true;
+
+  if (!String(data.education || "").trim()) {
+    newErrors.education = "Education qualification is required";
+    ok = false;
+  } else {
+    delete newErrors.education;
+  }
+
+  if (!String(data.experienceStatus || "").trim()) {
+    newErrors.experienceStatus = "Please select experience status";
+    ok = false;
+  } else {
+    delete newErrors.experienceStatus;
+  }
+
   if (data.experienceStatus === "experienced") {
     if (!String(data.experienceYears || "").trim()) {
-      Alert.alert("Validation Error", "Please select experience years.");
-      return false;
+      newErrors.experienceYears = "Please select experience years";
+      ok = false;
+    } else {
+      delete newErrors.experienceYears;
     }
     if (!String(data.experienceField || "").trim()) {
-      Alert.alert("Validation Error", "Please enter your experience field.");
-      return false;
+      newErrors.experienceField = "Please enter your experience field";
+      ok = false;
+    } else {
+      delete newErrors.experienceField;
     }
   }
-  return true;
+
+  if (!String(data.canJoinImmediately || "").trim()) {
+    newErrors.canJoinImmediately = "Please select an option";
+    ok = false;
+  } else {
+    delete newErrors.canJoinImmediately;
+  }
+
+  if (setErrors) setErrors(newErrors);
+  if (!ok) {
+    Alert.alert("Validation Error", "Please correct the highlighted fields to submit.");
+  }
+  return ok;
 };
 
 export default function JobSeekerProfileForm() {
   const navigation = useNavigation();
   const { dark, colors } = useTheme();
   const ofs = getOwnerFormStyles(colors, dark);
+  const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState(initialProfileData);
   const [isSaving, setIsSaving] = useState(false);
+  const [errors, setErrors] = useState({});
 
   useFocusEffect(
     React.useCallback(() => {
@@ -127,9 +223,16 @@ export default function JobSeekerProfileForm() {
             prefilledName = userDetails.name;
           }
 
+          let prefilledPhone = "";
+          if (userDetails?.contact || userDetails?.contact_number) {
+            prefilledPhone = sanitizePhoneInput(String(userDetails.contact || userDetails.contact_number));
+          }
+
+          setCurrentStep(1);
           setFormData({
             ...initialProfileData,
             name: prefilledName,
+            phoneNumber: prefilledPhone,
             signupId: signupId || null,
           });
         } catch (err) {
@@ -142,14 +245,33 @@ export default function JobSeekerProfileForm() {
 
   const handleInputChange = (field, value) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (errors && errors[field]) {
+      setErrors((prev) => {
+        const next = { ...prev };
+        delete next[field];
+        return next;
+      });
+    }
+  };
+
+  const handleNext = () => {
+    if (!validateStep1(formData, errors, setErrors)) return;
+    setCurrentStep(2);
+  };
+
+  const handleBack = () => {
+    if (currentStep === 1) {
+      navigation.goBack();
+    } else {
+      setCurrentStep(1);
+    }
   };
 
   const handleSubmit = async () => {
-    if (!validateForm(formData)) return;
+    if (!validateStep2(formData, errors, setErrors)) return;
     try {
       setIsSaving(true);
 
-      // First try saving to the backend database
       const submitData = { ...formData };
       if (formData.experienceStatus === "fresher") {
         submitData.experienceYears = "";
@@ -167,7 +289,6 @@ export default function JobSeekerProfileForm() {
         console.warn("[JobSeekerProfileForm] Backend save failed, using fallback AsyncStorage:", saveErr);
       }
 
-      // Always also save a copy to AsyncStorage as a fallback
       await AsyncStorage.setItem("jobSeekerProfile", JSON.stringify(submitData));
 
       if (saved) {
@@ -197,6 +318,144 @@ export default function JobSeekerProfileForm() {
     }
   };
 
+  const renderStep1Personal = () => (
+    <OwnerFormCard
+      title="Personal Details"
+      subtitle="Page 1 of 2 — Name, contact and location"
+      colors={ofs.themeColors}
+      dark={dark}
+    >
+      <OwnerFormField
+        label="Full Name *"
+        value={formData.name}
+        onChangeText={(value) => handleInputChange("name", value)}
+        colors={ofs.themeColors}
+        dark={dark}
+        error={errors.name}
+      />
+      <OwnerFormField
+        label="Age *"
+        value={formData.age}
+        onChangeText={(value) => handleInputChange("age", value.replace(/\D/g, ""))}
+        keyboardType="numeric"
+        colors={ofs.themeColors}
+        dark={dark}
+        error={errors.age}
+      />
+      <OptionSelectField
+        label="Gender *"
+        options={genderOptions}
+        selectedValue={formData.gender || ""}
+        onSelect={(value) => handleInputChange("gender", value)}
+        colors={ofs.themeColors}
+        dark={dark}
+        collapsible
+      />
+      <OwnerFormField
+        label="Area"
+        value={formData.area}
+        onChangeText={(value) => handleInputChange("area", value)}
+        placeholder="e.g., Local Area / Colony / Street"
+        colors={ofs.themeColors}
+        dark={dark}
+      />
+      <OwnerFormField
+        label="City/Town *"
+        value={formData.city}
+        onChangeText={(value) => handleInputChange("city", value)}
+        placeholder="e.g., Chennai / Coimbatore"
+        colors={ofs.themeColors}
+        dark={dark}
+        error={errors.city}
+      />
+      <OwnerFormField
+        label="Aadhar Number"
+        value={formData.aadhar}
+        onChangeText={(value) => {
+          const digits = value.replace(/\D/g, "").slice(0, 12);
+          handleInputChange("aadhar", digits);
+        }}
+        keyboardType="numeric"
+        placeholder="12-digit Aadhar number"
+        colors={ofs.themeColors}
+        dark={dark}
+        error={errors.aadhar}
+      />
+      <OwnerFormField
+        label="Phone Number *"
+        value={formData.phoneNumber}
+        onChangeText={(value) => {
+          const digits = sanitizePhoneInput(value).slice(0, 10);
+          handleInputChange("phoneNumber", digits);
+        }}
+        keyboardType="numeric"
+        placeholder="10-digit mobile number"
+        colors={ofs.themeColors}
+        dark={dark}
+        error={errors.phoneNumber}
+      />
+    </OwnerFormCard>
+  );
+
+  const renderStep2Education = () => (
+    <OwnerFormCard
+      title="Educational Qualification & Experience"
+      subtitle="Page 2 of 2 — Education and work background"
+      colors={ofs.themeColors}
+      dark={dark}
+    >
+      <OptionSelectField
+        label="Education Qualification *"
+        options={educationOptions}
+        selectedValue={formData.education || ""}
+        onSelect={(value) => handleInputChange("education", value)}
+        colors={ofs.themeColors}
+        dark={dark}
+        collapsible
+      />
+      <OptionSelectField
+        label="Experience Status *"
+        options={experienceStatusOptions}
+        selectedValue={formData.experienceStatus || ""}
+        onSelect={(value) => handleInputChange("experienceStatus", value)}
+        colors={ofs.themeColors}
+        dark={dark}
+        collapsible
+      />
+      {formData.experienceStatus === "experienced" && (
+        <>
+          <OptionSelectField
+            label="Experience Years *"
+            options={experienceYearOptions}
+            selectedValue={formData.experienceYears || ""}
+            onSelect={(value) => handleInputChange("experienceYears", value)}
+            colors={ofs.themeColors}
+            dark={dark}
+            collapsible
+          />
+          <OwnerFormField
+            label="Experience Field *"
+            value={formData.experienceField}
+            onChangeText={(value) => handleInputChange("experienceField", value)}
+            placeholder="e.g., Sales, Teaching, IT, Manager, Cashier"
+            colors={ofs.themeColors}
+            dark={dark}
+            error={errors.experienceField}
+          />
+        </>
+      )}
+      <OptionSelectField
+        label="Can Join Immediately *"
+        options={canJoinImmediatelyOptions}
+        selectedValue={formData.canJoinImmediately || ""}
+        onSelect={(value) => handleInputChange("canJoinImmediately", value)}
+        colors={ofs.themeColors}
+        dark={dark}
+        collapsible
+      />
+    </OwnerFormCard>
+  );
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -205,7 +464,7 @@ export default function JobSeekerProfileForm() {
     >
       <StatusBar barStyle="light-content" backgroundColor="#0f213d" />
 
-      <OwnerFormHeader title="Add My Profile" step={1} maxSteps={1} dark={dark} />
+      <OwnerFormHeader title="Add My Profile" step={currentStep} maxSteps={MAX_STEPS} dark={dark} />
 
       <ScrollView
         style={{ flex: 1 }}
@@ -214,81 +473,13 @@ export default function JobSeekerProfileForm() {
         contentContainerStyle={ofs.scrollContent}
       >
         <View style={ofs.formCenterWrap}>
-          <OwnerFormCard
-            title="My Profile"
-            subtitle="Fill in your details"
-            colors={ofs.themeColors}
-            dark={dark}
-          >
-            <OwnerFormField
-              label="Name *"
-              value={formData.name}
-              onChangeText={(value) => handleInputChange("name", value)}
-              colors={ofs.themeColors}
-              dark={dark}
-            />
-            <OwnerFormField
-              label="Age *"
-              value={formData.age}
-              onChangeText={(value) => handleInputChange("age", value.replace(/\D/g, ""))}
-              keyboardType="numeric"
-              colors={ofs.themeColors}
-              dark={dark}
-            />
-            <OptionSelectField
-              label="Gender *"
-              options={genderOptions}
-              selectedValue={formData.gender || ""}
-              onSelect={(value) => handleInputChange("gender", value)}
-              colors={ofs.themeColors}
-              dark={dark}
-              collapsible
-            />
-            <OptionSelectField
-              label="Education Qualification *"
-              options={educationOptions}
-              selectedValue={formData.education || ""}
-              onSelect={(value) => handleInputChange("education", value)}
-              colors={ofs.themeColors}
-              dark={dark}
-              collapsible
-            />
-            <OptionSelectField
-              label="Experience Status *"
-              options={experienceStatusOptions}
-              selectedValue={formData.experienceStatus || ""}
-              onSelect={(value) => handleInputChange("experienceStatus", value)}
-              colors={ofs.themeColors}
-              dark={dark}
-              collapsible
-            />
-            {formData.experienceStatus === "experienced" && (
-              <>
-                <OptionSelectField
-                  label="Experience Years *"
-                  options={experienceYearOptions}
-                  selectedValue={formData.experienceYears || ""}
-                  onSelect={(value) => handleInputChange("experienceYears", value)}
-                  colors={ofs.themeColors}
-                  dark={dark}
-                  collapsible
-                />
-                <OwnerFormField
-                  label="Experience Field *"
-                  value={formData.experienceField}
-                  onChangeText={(value) => handleInputChange("experienceField", value)}
-                  placeholder="e.g., Sales, Teaching, IT, etc."
-                  colors={ofs.themeColors}
-                  dark={dark}
-                />
-              </>
-            )}
-          </OwnerFormCard>
+          {currentStep === 1 && renderStep1Personal()}
+          {currentStep === 2 && renderStep2Education()}
 
           <View style={ofs.formActionsRow}>
             <TouchableOpacity
               style={[ofs.formActionBtn, ofs.formActionBtnOutline]}
-              onPress={() => navigation.goBack()}
+              onPress={handleBack}
               disabled={isSaving}
             >
               <Text style={ofs.formActionBtnOutlineText}>Back</Text>
@@ -296,13 +487,15 @@ export default function JobSeekerProfileForm() {
 
             <TouchableOpacity
               style={[ofs.formActionBtn, ofs.formActionBtnPrimary]}
-              onPress={handleSubmit}
+              onPress={currentStep === 1 ? handleNext : handleSubmit}
               disabled={isSaving}
             >
               {isSaving ? (
                 <ActivityIndicator color="#ffffff" size="small" />
               ) : (
-                <Text style={ofs.formActionBtnText}>Save Profile</Text>
+                <Text style={ofs.formActionBtnText}>
+                  {currentStep === 1 ? "Next" : "Save Profile"}
+                </Text>
               )}
             </TouchableOpacity>
           </View>

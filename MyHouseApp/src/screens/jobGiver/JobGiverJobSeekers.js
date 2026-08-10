@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, Alert, ActivityIndicator, StyleSheet } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -7,7 +8,7 @@ import { getTenantPageStyles } from '../../styles/tenantPageStyles';
 import propertyListStyles from '../residential/tenant/propertyListStyles';
 import TenantPageHeader from '../../shared/components/TenantPageHeader';
 import { useTheme } from '../../context/ThemeContext';
-import { getAllJobSeekerProfiles } from '../jobSeeker/logic/api';
+import { getJobSeekers } from './logic/api';
 import { getOwnerFormThemeColors } from '../../styles/ownerFormStyles';
 import TenantFilterPanel from '../../shared/components/TenantFilterPanel';
 
@@ -88,24 +89,36 @@ const getExperienceLabel = (value) => {
   return found ? found.label : '';
 };
 
+const getStatusColor = (status) => {
+  if (status === 'accepted') return '#27ae60';
+  if (status === 'declined') return '#e74c3c';
+  return '#f39c12';
+};
+
 const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
   if (!profile) return null;
   const { colors } = tps;
-  const isExperienced = profile.experienceStatus === 'experienced';
+  const isExperienced = String(profile.experience || '').toLowerCase() === 'experienced';
   const experienceLabel = isExperienced ? 'Experienced' : 'Fresher';
   const experienceColor = isExperienced ? '#92400e' : '#166534';
+  const statusColor = profile.status ? getStatusColor(profile.status) : null;
 
   return (
     <View style={tps.card}>
-      <View
-        style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#374151' : '#eff6ff' }]}
-      >
-        <Text style={{ fontSize: 40 }}>👤</Text>
+      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+        <View
+          style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#374151' : '#eff6ff', marginRight: 0 }]}
+        >
+          <Text style={{ fontSize: 40 }}>👤</Text>
+        </View>
+        <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
+          {profile.age} yrs • {capitalize(profile.gender)}
+        </Text>
       </View>
 
       <View style={propertyListStyles.detailsContainer}>
         <Text style={[propertyListStyles.location, { color: colors.text }]}>
-          {profile.name}
+          {profile.fullName || profile.name}
         </Text>
 
         <View style={tps.propertyInfo}>
@@ -117,12 +130,22 @@ const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'column' }}>
-          <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-            {profile.age} yrs • {capitalize(profile.gender)}
-          </Text>
+        {profile.status && (
+          <View style={{ marginTop: 6 }}>
+            <Text style={{
+              fontSize: 11,
+              fontWeight: '600',
+              color: statusColor,
+              textTransform: 'capitalize'
+            }}>
+              Status: {profile.status}
+            </Text>
+          </View>
+        )}
+
+        <View style={{ alignItems: 'flex-end', marginTop: 4 }}>
           <TouchableOpacity onPress={() => onViewDetails(profile)}>
-            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
+            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary, textAlign: 'right' }]}>View Details →</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -135,28 +158,29 @@ export default function JobGiverJobSeekers() {
   const { dark } = useTheme();
   const tps = getTenantPageStyles(dark);
   const themeColors = getOwnerFormThemeColors(dark);
-  const [profiles, setProfiles] = useState([]);
+  const [applicants, setApplicants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [jobGiverId, setJobGiverId] = useState(null);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [ageFilter, setAgeFilter] = useState('');
   const [genderFilter, setGenderFilter] = useState('');
   const [educationFilter, setEducationFilter] = useState('');
   const [experienceFilter, setExperienceFilter] = useState('');
-  const [filteredProfiles, setFilteredProfiles] = useState([]);
+  const [filteredApplicants, setFilteredApplicants] = useState([]);
 
-  const fetchProfiles = async () => {
+  const fetchApplicants = async (currentJobGiverId) => {
     try {
       setLoading(true);
-      const data = await getAllJobSeekerProfiles();
+      const data = await getJobSeekers(currentJobGiverId);
       if (Array.isArray(data)) {
-        setProfiles(data);
+        setApplicants(data);
       } else {
-        setProfiles([]);
+        setApplicants([]);
       }
     } catch (error) {
-      console.error("Error fetching job seeker profiles:", error);
-      Alert.alert("Error", "Failed to load profiles.");
-      setProfiles([]);
+      console.error("Error fetching job applicants:", error);
+      Alert.alert("Error", "Failed to load applicants.");
+      setApplicants([]);
     } finally {
       setLoading(false);
     }
@@ -164,12 +188,27 @@ export default function JobGiverJobSeekers() {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchProfiles();
+      const load = async () => {
+        let storedId = null;
+        try {
+          storedId = await AsyncStorage.getItem('jobGiverId');
+        } catch (e) {
+          console.warn('[JobGiverJobSeekers] Could not read jobGiverId:', e);
+        }
+        setJobGiverId(storedId);
+        if (storedId) {
+          await fetchApplicants(storedId);
+        } else {
+          setLoading(false);
+          setApplicants([]);
+        }
+      };
+      load();
     }, [])
   );
 
   useEffect(() => {
-    let result = [...profiles];
+    let result = [...applicants];
     if (ageFilter) {
       const [minAge, maxAge] = ageFilter.split('-').map(Number);
       result = result.filter(p => {
@@ -184,13 +223,13 @@ export default function JobGiverJobSeekers() {
       result = result.filter(p => String(p.education || '').toLowerCase() === String(educationFilter).toLowerCase());
     }
     if (experienceFilter) {
-      result = result.filter(p => String(p.experienceStatus || '').toLowerCase() === String(experienceFilter).toLowerCase());
+      result = result.filter(p => String(p.experience || '').toLowerCase() === String(experienceFilter).toLowerCase());
     }
-    setFilteredProfiles(result);
-  }, [profiles, ageFilter, genderFilter, educationFilter, experienceFilter]);
+    setFilteredApplicants(result);
+  }, [applicants, ageFilter, genderFilter, educationFilter, experienceFilter]);
 
   const handleViewDetails = (profile) => {
-    navigation.navigate('JobSeekerProfileDetails', { profileId: profile.id });
+    navigation.navigate('JobGiverJobSeekerDetails', { jobSeekerId: profile.id });
   };
 
   const clearAllFilters = () => {
@@ -205,7 +244,7 @@ export default function JobGiverJobSeekers() {
   const listHeader = () => (
     <View style={propertyListStyles.content}>
       <View style={propertyListStyles.titleRow}>
-        <Text style={tps.pageTitle}>Available Profiles</Text>
+        <Text style={tps.pageTitle}>Applicants to Your Company</Text>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           {hasAnyFilter && (
             <TouchableOpacity onPress={clearAllFilters} style={{ marginRight: 8 }}>
@@ -226,7 +265,7 @@ export default function JobGiverJobSeekers() {
 
       <View style={{ marginBottom: 10 }}>
         <Text style={{ fontSize: 13, color: '#6b7280' }}>
-          {loading ? 'Loading...' : `${filteredProfiles.length} found`}
+          {loading ? 'Loading...' : `${filteredApplicants.length} found`}
         </Text>
       </View>
 
@@ -253,18 +292,37 @@ export default function JobGiverJobSeekers() {
         </View>
       )}
 
-      {loading ? (
+      {!jobGiverId && !loading ? (
+        <View style={{ paddingVertical: 40, alignItems: 'center', paddingHorizontal: 20 }}>
+          <Text style={propertyListStyles.noPropertiesText}>No Company Registered</Text>
+          <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
+            Please register your company first using the "Register Your Company" button on the Job Giver page. Once registered, applicants to your jobs will appear here.
+          </Text>
+          <TouchableOpacity
+            style={{
+              marginTop: 16,
+              paddingHorizontal: 20,
+              paddingVertical: 10,
+              backgroundColor: '#2563eb',
+              borderRadius: 8,
+            }}
+            onPress={() => navigation.navigate('AddJobGiver')}
+          >
+            <Text style={{ color: '#ffffff', fontSize: 14, fontWeight: '600' }}>Register Your Company</Text>
+          </TouchableOpacity>
+        </View>
+      ) : loading ? (
         <View style={{ paddingVertical: 40, alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#2563eb" />
-          <Text style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>Loading profiles...</Text>
+          <Text style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>Loading applicants...</Text>
         </View>
-      ) : filteredProfiles.length === 0 ? (
+      ) : filteredApplicants.length === 0 ? (
         <View style={{ paddingVertical: 40, alignItems: 'center', paddingHorizontal: 20 }}>
-          <Text style={propertyListStyles.noPropertiesText}>No job seeker profiles yet</Text>
+          <Text style={propertyListStyles.noPropertiesText}>No applicants yet</Text>
           <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
             {hasAnyFilter
-              ? 'No profiles match your filters. Try adjusting your filter criteria.'
-              : 'Profiles will appear here once job seekers save their "Add My Profile" form.'}
+              ? 'No applicants match your filters. Try adjusting your filter criteria.'
+              : 'When job seekers apply to your company jobs, their applications will appear here.'}
           </Text>
         </View>
       ) : null}
@@ -275,11 +333,11 @@ export default function JobGiverJobSeekers() {
     <View style={tps.screen}>
       <Header />
       <TenantPageHeader
-        title="Job Seekers"
-        subtitle="Browse all job seeker profiles"
+        title="Job Applicants"
+        subtitle="People who applied to your company jobs"
       />
       <FlatList
-        data={filteredProfiles}
+        data={filteredApplicants}
         keyExtractor={(item) => String(item.id)}
         renderItem={({ item }) => (
           <ProfileCard profile={item} onViewDetails={handleViewDetails} tps={tps} dark={dark} />

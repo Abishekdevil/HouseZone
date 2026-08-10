@@ -31,11 +31,16 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
   
   return (
     <View style={tps.card}>
-      <Image 
-        source={{ uri: firstImage }} 
-        style={[propertyListStyles.imagePlaceholder, { backgroundColor: dark ? '#333' : '#f0f0f0' }]} 
-        resizeMode="cover"
-      />
+      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+        <Image 
+          source={{ uri: firstImage }} 
+          style={[propertyListStyles.imagePlaceholder, { backgroundColor: dark ? '#333' : '#f0f0f0', marginRight: 0 }]} 
+          resizeMode="cover"
+        />
+        <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
+          Posted {getTimeAgo(property.createdAt)}
+        </Text>
+      </View>
       <View style={propertyListStyles.detailsContainer}>
         <Text style={[propertyListStyles.location, { color: colors.text }]}>{displayLocation}</Text>
         <View style={tps.propertyInfo}>
@@ -44,13 +49,8 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
             ₹{displayRent}{rentLabel}
           </Text>
         </View>
-        <View style={{ flexDirection: 'column' }}>
-          <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-            Posted {getTimeAgo(property.createdAt)}
-          </Text>
-          <TouchableOpacity onPress={() => onViewDetails(property?.id)}>
-            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
-          </TouchableOpacity>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={[propertyListStyles.viewMoreText, { color: colors.primary, textAlign: 'right' }]} onPress={() => onViewDetails(property?.id)}>View More →</Text>
         </View>
       </View>
     </View>

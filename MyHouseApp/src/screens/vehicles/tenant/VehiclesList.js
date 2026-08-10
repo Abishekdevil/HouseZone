@@ -160,11 +160,16 @@ const VehiclesList = () => {
         const displayName = `${item.name || 'Vehicle'}${item.model ? ` • ${item.model}` : ''}`;
         return (
             <View style={tps.card}>
-                <Image 
-                    source={{ uri: firstImage }} 
-                    style={propertyListStyles.imagePlaceholder} 
-                    resizeMode="cover"
-                />
+                <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+                    <Image 
+                        source={{ uri: firstImage }} 
+                        style={[propertyListStyles.imagePlaceholder, { marginRight: 0 }]} 
+                        resizeMode="cover"
+                    />
+                    <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
+                        Posted {getTimeAgo(item.createdAt)}
+                    </Text>
+                </View>
 
                 <View style={propertyListStyles.detailsContainer}>
                     <Text style={[propertyListStyles.location, { color: colors.text }]}>{item.area || item.city || 'Unknown'}</Text>
@@ -176,12 +181,12 @@ const VehiclesList = () => {
                         </Text>
                     </View>
 
-                    <View style={{ flexDirection: 'column' }}>
-                        <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-                            Fuel: {item.fuelType || 'N/A'} • Posted {getTimeAgo(item.createdAt)}
+                    <View style={{ flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between' }}>
+                        <Text style={{ fontSize: 12, fontWeight: '500', color: colors.subText, marginLeft: 12 }}>
+                            Fuel: {item.fuelType || 'N/A'}
                         </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('VehicleDetails', { id: item.id })}>
-                            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
+                            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More →</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

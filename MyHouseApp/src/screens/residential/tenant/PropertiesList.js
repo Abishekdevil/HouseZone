@@ -26,11 +26,16 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
   
   return (
     <View style={tps.card}>
-      <Image 
-        source={{ uri: firstImage }} 
-        style={propertyListStyles.imagePlaceholder} 
-        resizeMode="cover"
-      />
+      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+        <Image 
+          source={{ uri: firstImage }} 
+          style={[propertyListStyles.imagePlaceholder, { marginRight: 0 }]} 
+          resizeMode="cover"
+        />
+        <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
+          Posted {getTimeAgo(property.createdAt)}
+        </Text>
+      </View>
       
       {/* Right side - Property details */}
       <View style={propertyListStyles.detailsContainer}>
@@ -42,10 +47,9 @@ const PropertyCard = ({ property, onViewDetails, tps, dark }) => {
             ₹{property?.leaseAmount ? property.leaseAmount : (property?.rent || 'N/A')}{property?.leaseAmount ? '' : '/month'}
           </Text>
         </View>
-        <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-          Posted {getTimeAgo(property.createdAt)}
-        </Text>
-        <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]} onPress={() => onViewDetails(property?.id)}>View More</Text>
+        <View style={{ alignItems: 'flex-end' }}>
+          <Text style={[propertyListStyles.viewMoreText, { color: colors.primary, textAlign: 'right' }]} onPress={() => onViewDetails(property?.id)}>View More →</Text>
+        </View>
       </View>
     </View>
   );

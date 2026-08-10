@@ -161,6 +161,12 @@ export default function AddJobGiver() {
       };
       await saveJobGiverStep3(step3Data);
 
+      try {
+        await AsyncStorage.setItem('jobGiverId', String(jobGiverId));
+      } catch (storeErr) {
+        console.warn('[AddJobGiver] Could not save jobGiverId to AsyncStorage:', storeErr);
+      }
+
       Alert.alert("Success", "Job posting details saved successfully!", [
         {
           text: "OK",

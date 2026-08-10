@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, FlatList, Alert, ActivityIndicator } from "react-native";
 import { useNavigation, useFocusEffect } from "@react-navigation/native";
 import categoryContentStyles from '../styles/categoryContentStyles';
@@ -6,60 +6,125 @@ import { getTenantPageStyles } from '../styles/tenantPageStyles';
 import propertyListStyles from './residential/tenant/propertyListStyles';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { getJobSeekers } from './jobGiver/logic/api';
 import TenantPageHeader from '../shared/components/TenantPageHeader';
 import { useTheme } from '../context/ThemeContext';
+import { getOwnerFormThemeColors } from '../styles/ownerFormStyles';
+import TenantFilterPanel from '../shared/components/TenantFilterPanel';
+import { getAllJobSeekerProfiles } from './jobSeeker/logic/api';
 
 const capitalize = (str) => {
   if (!str) return "";
   return String(str).charAt(0).toUpperCase() + String(str).slice(1);
 };
 
-const getStatusColor = (status) => {
-  if (status === 'accepted') return '#27ae60';
-  if (status === 'declined') return '#e74c3c';
-  return '#f39c12';
+const AGE_FILTER_OPTIONS = [
+  { label: "Any", value: "" },
+  { label: "18-30", value: "18-30" },
+  { label: "30-50", value: "30-50" },
+  { label: "50-60", value: "50-60" },
+];
+
+const GENDER_FILTER_OPTIONS = [
+  { label: "Any", value: "" },
+  { label: "Male", value: "male" },
+  { label: "Female", value: "female" },
+  { label: "Other", value: "other" },
+];
+
+const EDUCATION_FILTER_OPTIONS = [
+  { label: "Any", value: "" },
+  { label: "10th", value: "10th" },
+  { label: "12th", value: "12th" },
+  { label: "UG", value: "ug" },
+  { label: "PG", value: "pg" },
+  { label: "Diploma", value: "diploma" },
+  { label: "Other", value: "other" },
+];
+
+const EXPERIENCE_FILTER_OPTIONS = [
+  { label: "Any", value: "" },
+  { label: "Fresher", value: "fresher" },
+  { label: "Experienced", value: "experienced" },
+];
+
+const SelectedFilterBox = ({ label, value, onRemove, tps }) => {
+  if (!value) return null;
+  const { colors } = tps;
+  return (
+    <View style={propertyListStyles.selectedFilterBox}>
+      <View style={propertyListStyles.selectedFilterContent}>
+        <Text style={[propertyListStyles.selectedFilterText, { color: colors.text }]}>
+          {label}: {value}
+        </Text>
+        <TouchableOpacity onPress={onRemove} style={propertyListStyles.removeFilterButton}>
+          <Text style={propertyListStyles.removeFilterText}>✕</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 };
 
-const ApplicationCard = ({ jobSeeker, onViewDetails, tps, dark }) => {
-  if (!jobSeeker) return null;
+const getAgeLabel = (value) => {
+  if (!value) return '';
+  const found = AGE_FILTER_OPTIONS.find(o => o.value === value);
+  return found ? found.label : '';
+};
+
+const getGenderLabel = (value) => {
+  if (!value) return '';
+  const found = GENDER_FILTER_OPTIONS.find(o => o.value === value);
+  return found ? found.label : '';
+};
+
+const getEducationLabel = (value) => {
+  if (!value) return '';
+  const found = EDUCATION_FILTER_OPTIONS.find(o => o.value === value);
+  return found ? found.label : '';
+};
+
+const getExperienceLabel = (value) => {
+  if (!value) return '';
+  const found = EXPERIENCE_FILTER_OPTIONS.find(o => o.value === value);
+  return found ? found.label : '';
+};
+
+const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
+  if (!profile) return null;
   const { colors } = tps;
-  const statusColor = getStatusColor(jobSeeker.status);
+  const isExperienced = profile.experienceStatus === 'experienced';
+  const experienceLabel = isExperienced ? 'Experienced' : 'Fresher';
+  const experienceColor = isExperienced ? '#92400e' : '#166534';
 
   return (
     <View style={tps.card}>
-      <View
-        style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#374151' : '#eff6ff' }]}
-      >
-        <Text style={{ fontSize: 40 }}>👤</Text>
+      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+        <View
+          style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#374151' : '#eff6ff', marginRight: 0 }]}
+        >
+          <Text style={{ fontSize: 40 }}>👤</Text>
+        </View>
+        <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
+          {profile.age} yrs • {capitalize(profile.gender)}
+        </Text>
       </View>
 
       <View style={propertyListStyles.detailsContainer}>
         <Text style={[propertyListStyles.location, { color: colors.text }]}>
-          {jobSeeker.fullName}
+          {profile.name}
         </Text>
 
         <View style={tps.propertyInfo}>
           <Text style={[propertyListStyles.bedroomsText, { color: colors.text }]}>
-            {jobSeeker.education} • {jobSeeker.experience}
+            {capitalize(profile.education)}
           </Text>
-          <Text style={[propertyListStyles.rentText, { color: statusColor, borderTopColor: colors.border }]}>
-            {capitalize(jobSeeker.status || 'pending')}
+          <Text style={[propertyListStyles.rentText, { color: experienceColor, borderTopColor: colors.border }]}>
+            {experienceLabel}
           </Text>
         </View>
 
-        <View style={{ flexDirection: 'column' }}>
-          {jobSeeker.shopName ? (
-            <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-              Applied to: {jobSeeker.shopName} • Age {jobSeeker.age} • {capitalize(jobSeeker.gender)}
-            </Text>
-          ) : (
-            <Text style={{ marginLeft: 12, marginBottom: 6, color: colors.subText, fontSize: 12, fontWeight: '500' }}>
-              Age {jobSeeker.age} • {capitalize(jobSeeker.gender)}
-            </Text>
-          )}
-          <TouchableOpacity onPress={() => onViewDetails(jobSeeker)}>
-            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary }]}>View More</Text>
+        <View style={{ alignItems: 'flex-end' }}>
+          <TouchableOpacity onPress={() => onViewDetails(profile)}>
+            <Text style={[propertyListStyles.viewMoreText, { color: colors.primary, textAlign: 'right' }]}>View Details →</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -71,22 +136,29 @@ export default function JobGiver() {
   const navigation = useNavigation();
   const { dark } = useTheme();
   const tps = getTenantPageStyles(dark);
-  const [applications, setApplications] = useState([]);
+  const themeColors = getOwnerFormThemeColors(dark);
+  const [profiles, setProfiles] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
+  const [ageFilter, setAgeFilter] = useState('');
+  const [genderFilter, setGenderFilter] = useState('');
+  const [educationFilter, setEducationFilter] = useState('');
+  const [experienceFilter, setExperienceFilter] = useState('');
+  const [filteredProfiles, setFilteredProfiles] = useState([]);
 
-  const fetchApplications = async () => {
+  const fetchProfiles = async () => {
     try {
       setLoading(true);
-      const data = await getJobSeekers();
+      const data = await getAllJobSeekerProfiles();
       if (Array.isArray(data)) {
-        setApplications(data);
+        setProfiles(data);
       } else {
-        setApplications([]);
+        setProfiles([]);
       }
     } catch (error) {
-      console.error("Error fetching job seeker applications:", error);
-      Alert.alert("Error", "Failed to load applications.");
-      setApplications([]);
+      console.error("Error fetching job seeker profiles:", error);
+      Alert.alert("Error", "Failed to load profiles.");
+      setProfiles([]);
     } finally {
       setLoading(false);
     }
@@ -94,36 +166,109 @@ export default function JobGiver() {
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchApplications();
+      fetchProfiles();
     }, [])
   );
 
-  const handleViewDetails = (jobSeeker) => {
-    navigation.navigate('JobGiverJobSeekerDetails', { jobSeekerId: jobSeeker.id });
+  useEffect(() => {
+    let result = [...profiles];
+    if (ageFilter) {
+      const [min, max] = ageFilter.split('-').map(Number);
+      result = result.filter(p => {
+        const a = Number(p.age);
+        return !isNaN(a) && a >= min && a <= max;
+      });
+    }
+    if (genderFilter) {
+      result = result.filter(p => String(p.gender || '').toLowerCase() === genderFilter.toLowerCase());
+    }
+    if (educationFilter) {
+      result = result.filter(p => String(p.education || '').toLowerCase() === educationFilter.toLowerCase());
+    }
+    if (experienceFilter) {
+      result = result.filter(p => String(p.experienceStatus || '').toLowerCase() === experienceFilter.toLowerCase());
+    }
+    setFilteredProfiles(result);
+  }, [profiles, ageFilter, genderFilter, educationFilter, experienceFilter]);
+
+  const handleViewDetails = (profile) => {
+    navigation.navigate('JobSeekerProfileDetails', { profileId: profile.id });
   };
 
   const listHeader = () => (
     <View style={propertyListStyles.content}>
-      <View style={propertyListStyles.titleRow}>
-        <Text style={tps.pageTitle}>Applications Received</Text>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, marginTop: 8 }}>
+        <Text style={tps.pageTitle}>Available Profiles</Text>
+        <TouchableOpacity
+          style={tps.filterBtn}
+          onPress={() => setIsFilterVisible(!isFilterVisible)}
+        >
+          <Text style={tps.filterBtnText}>
+            {isFilterVisible ? "Hide Filter" : "Filter"}{" "}
+            {isFilterVisible ? "▲" : "▼"}
+          </Text>
+        </TouchableOpacity>
       </View>
 
-      <View style={{ marginBottom: 10 }}>
+      {isFilterVisible && (
+        <TenantFilterPanel
+          colors={themeColors}
+          sections={[
+            {
+              key: "age",
+              label: "Age",
+              options: AGE_FILTER_OPTIONS,
+              value: ageFilter,
+              onSelect: setAgeFilter,
+            },
+            {
+              key: "gender",
+              label: "Gender",
+              options: GENDER_FILTER_OPTIONS,
+              value: genderFilter,
+              onSelect: setGenderFilter,
+            },
+            {
+              key: "education",
+              label: "Education",
+              options: EDUCATION_FILTER_OPTIONS,
+              value: educationFilter,
+              onSelect: setEducationFilter,
+            },
+            {
+              key: "experience",
+              label: "Experience",
+              options: EXPERIENCE_FILTER_OPTIONS,
+              value: experienceFilter,
+              onSelect: setExperienceFilter,
+            },
+          ]}
+        />
+      )}
+
+      <View style={[propertyListStyles.selectedFiltersContainer, { marginTop: 8 }]}>
+        <SelectedFilterBox label="Age" value={getAgeLabel(ageFilter)} onRemove={() => setAgeFilter("")} tps={tps} />
+        <SelectedFilterBox label="Gender" value={getGenderLabel(genderFilter)} onRemove={() => setGenderFilter("")} tps={tps} />
+        <SelectedFilterBox label="Education" value={getEducationLabel(educationFilter)} onRemove={() => setEducationFilter("")} tps={tps} />
+        <SelectedFilterBox label="Experience" value={getExperienceLabel(experienceFilter)} onRemove={() => setExperienceFilter("")} tps={tps} />
+      </View>
+
+      <View style={{ marginBottom: 10, marginTop: 12 }}>
         <Text style={{ fontSize: 13, color: '#6b7280' }}>
-          {loading ? 'Loading...' : `${applications.length} application${applications.length === 1 ? '' : 's'} found`}
+          {loading ? 'Loading...' : `${filteredProfiles.length} found`}
         </Text>
       </View>
 
       {loading ? (
         <View style={{ paddingVertical: 40, alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#2563eb" />
-          <Text style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>Loading applications...</Text>
+          <Text style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>Loading profiles...</Text>
         </View>
-      ) : applications.length === 0 ? (
+      ) : filteredProfiles.length === 0 ? (
         <View style={{ paddingVertical: 40, alignItems: 'center', paddingHorizontal: 20 }}>
-          <Text style={propertyListStyles.noPropertiesText}>No applications yet</Text>
+          <Text style={propertyListStyles.noPropertiesText}>No profiles yet</Text>
           <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
-            Applications will appear here once job seekers apply to your company postings.
+            Profiles will appear here once job seekers add their profile.
           </Text>
         </View>
       ) : null}
@@ -141,10 +286,10 @@ export default function JobGiver() {
 
         <View style={{ flex: 1, width: '100%' }}>
           <FlatList
-            data={applications}
+            data={filteredProfiles}
             keyExtractor={(item) => String(item.id)}
             renderItem={({ item }) => (
-              <ApplicationCard jobSeeker={item} onViewDetails={handleViewDetails} tps={tps} dark={dark} />
+              <ProfileCard profile={item} onViewDetails={handleViewDetails} tps={tps} dark={dark} />
             )}
             style={propertyListStyles.list}
             ListHeaderComponent={listHeader}

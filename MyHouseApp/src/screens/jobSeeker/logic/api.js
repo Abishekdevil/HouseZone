@@ -6,15 +6,33 @@ const handleFetchRequest = async (url, options) => {
     const contentType = response.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') !== -1) {
       const result = await response.json();
-      if (!response.ok) throw new Error(result.message || `HTTP ${response.status}`);
+      if (!response.ok) {
+        // Log but don't hard-fail on expected list endpoints — return empty fallback
+        // so the UI still renders a "nothing found" state instead of crashing.
+        console.warn(`HTTP ${response.status} for ${url}:`, result?.message);
+        if (url.includes('/jobseeker/jobs') && !url.match(/\/jobs\/\d+/)) {
+          return [];
+        }
+        throw new Error(result.message || `HTTP ${response.status}`);
+      }
       return result;
     } else {
       const text = await response.text();
-      if (!response.ok) throw new Error(text || `HTTP ${response.status}`);
+      if (!response.ok) {
+        if (url.includes('/jobseeker/jobs') && !url.match(/\/jobs\/\d+/)) {
+          return [];
+        }
+        throw new Error(text || `HTTP ${response.status}`);
+      }
       return { message: 'Success', data: text };
     }
   } catch (error) {
     console.error('Fetch error:', error);
+    // Graceful fallback for list endpoints: return empty array instead of re-throwing,
+    // so the UI can show a "no data / retry" hint rather than a blank error.
+    if (url.includes('/jobseeker/jobs') && !url.match(/\/jobs\/\d+/)) {
+      return [];
+    }
     throw error;
   }
 };
@@ -61,10 +79,6 @@ export const saveJobSeekerProfile = async (data) => {
 export const getJobSeekerProfile = async (query = {}) => {
   const queryParams = new URLSearchParams();
   if (query.signupId) queryParams.append('signupId', String(query.signupId));
-  if (query.name) queryParams.append('name', query.name);
-  if (query.age) queryParams.append('age', String(query.age));
-  if (query.gender) queryParams.append('gender', query.gender);
-  if (query.education) queryParams.append('education', query.education);
   const url = `${API_BASE_URL}/jobseeker/profile${queryParams.toString() ? '?' + queryParams.toString() : ''}`;
   return handleFetchRequest(url);
 };

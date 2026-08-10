@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Alert, SafeAreaView } from "react-native";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useNavigation } from "@react-navigation/native";
 import { Ionicons } from '@expo/vector-icons';
 import footerStyles from './styles/footerStyles';
@@ -19,7 +20,7 @@ export default function Footer() {
   };
 
   return (
-    <SafeAreaView style={{ backgroundColor: colors.card }}>
+    <SafeAreaView style={{ backgroundColor: colors.card }} edges={['bottom']}>
       <View style={[footerStyles.footer, { backgroundColor: colors.card, borderTopColor: colors.border }]}>
         <TouchableOpacity 
           style={footerStyles.footerItem}

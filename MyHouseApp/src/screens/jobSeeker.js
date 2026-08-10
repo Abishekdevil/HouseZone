@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, FlatList } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Alert, KeyboardAvoidingView, Platform, FlatList, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import Header from '../components/Header';
@@ -20,16 +20,24 @@ const JobCard = ({ job, onViewDetails, tps, dark }) => {
   return (
     <View style={tps.card}>
       {/* Left side: Image + employment type + posted ago */}
-      <View style={{ flexDirection: 'column', alignItems: 'flex-start', marginRight: 12 }}>
-        <Image
-          source={{ uri: job.shopPhoto1 }}
-          style={[propertyListStyles.imagePlaceholder, { backgroundColor: dark ? '#333' : '#f0f0f0', marginRight: 0 }]}
-          resizeMode="cover"
-        />
-        <Text style={{ color: colors.text, fontWeight: '500', fontSize: 12, marginTop: 8 }}>
+      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+        {job.shopPhoto1 ? (
+          <Image
+            source={{ uri: job.shopPhoto1 }}
+            style={[propertyListStyles.imagePlaceholder, { backgroundColor: dark ? '#333' : '#f0f0f0', marginRight: 0 }]}
+            resizeMode="cover"
+          />
+        ) : (
+          <View
+            style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#333' : '#f0f0f0', marginRight: 0 }]}
+          >
+            <Text style={{ fontSize: 36 }}>🏪</Text>
+          </View>
+        )}
+        <Text style={{ color: colors.text, fontWeight: '500', fontSize: 11, marginTop: 6, textAlign: 'center' }}>
           {job.employmentType}
         </Text>
-        <Text style={{ color: colors.subText, fontSize: 12, fontWeight: '500', marginTop: 4 }}>
+        <Text style={{ color: colors.subText, fontSize: 10, fontWeight: '500', marginTop: 4, textAlign: 'center' }}>
           Posted {getTimeAgo(job.createdAt)}
         </Text>
       </View>
@@ -64,7 +72,7 @@ const JobCard = ({ job, onViewDetails, tps, dark }) => {
           style={{ marginTop: 8, alignSelf: 'flex-end' }}
           onPress={() => onViewDetails(job)}
         >
-          <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '800' }}>View Details</Text>
+          <Text style={{ color: colors.primary, fontSize: 14, fontWeight: '800' }}>View Details →</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -128,6 +136,7 @@ export default function JobSeeker() {
   const tps = getTenantPageStyles(dark);
   const [jobs, setJobs] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [hasApplications, setHasApplications] = useState(false);
   const [isFilterVisible, setIsFilterVisible] = useState(false);
   const [salaryFilter, setSalaryFilter] = useState('');
@@ -164,17 +173,24 @@ export default function JobSeeker() {
   const fetchData = async (filters = {}) => {
     try {
       setLoading(true);
+      setFetchError(null);
       const [jobsData, storedMobile] = await Promise.all([
         getJobListings(filters),
         AsyncStorage.getItem('jobSeekerMobile')
       ]);
 
-      setJobs(jobsData);
+      if (!Array.isArray(jobsData)) {
+        setJobs([]);
+        setFetchError(new Error('Unexpected response from server'));
+      } else {
+        setJobs(jobsData);
+      }
       setHasApplications(!!storedMobile);
 
       // Update filter options from fetched jobs
-      const uniqueAreas = collectUniqueAreas(jobsData);
-      const uniqueJobTitles = collectUniqueJobTitles(jobsData);
+      const jobList = Array.isArray(jobsData) ? jobsData : [];
+      const uniqueAreas = collectUniqueAreas(jobList);
+      const uniqueJobTitles = collectUniqueJobTitles(jobList);
 
       setAreaFilterOptions([
         { label: "Any", value: "" },
@@ -188,6 +204,8 @@ export default function JobSeeker() {
 
     } catch (error) {
       console.error("Error fetching data:", error);
+      setJobs([]);
+      setFetchError(error || new Error('Unknown error'));
     } finally {
       setLoading(false);
     }
@@ -215,7 +233,7 @@ export default function JobSeeker() {
   }, [jobTitleFilter, areaFilter, salaryFilter, employmentTypeFilter]);
 
   const handleViewDetails = (job) => {
-    navigation.navigate('JobDetails', { job });
+    navigation.navigate('JobDetails', { jobId: job.id, job });
   };
 
   const listHeader = () => (
@@ -339,27 +357,64 @@ export default function JobSeeker() {
             }}
             onPress={() => {
               Alert.alert(
-                "Apply for Jobs",
-                "Please select a job from the list below to apply!",
+                "Join a Company",
+                "Please select a job from the list below, then click OK on the details screen to join!",
                 [{ text: "OK" }]
               )
             }}
           >
             <Text style={{ color: tps.colors.primary, fontWeight: 'bold', fontSize: 16 }}>
-              Apply for Jobs
+              Join a Company
             </Text>
             <Text style={{ marginTop: 4, color: tps.colors.text, fontSize: 14 }}>
-              Select a job below to start your application
+              Select a job below to view company details and apply
             </Text>
           </TouchableOpacity>
         )}
       </View>
-      {loading && (
-        <Text style={tps.loadingText}>Loading jobs...</Text>
-      )}
-      {!loading && jobs.length === 0 && (
-        <Text style={propertyListStyles.noPropertiesText}>No jobs available</Text>
-      )}
+
+      <Text style={tps.pageTitle}>Companies Hiring</Text>
+
+      <View style={{ marginBottom: 10, marginTop: 8 }}>
+        <Text style={{ fontSize: 13, color: '#6b7280' }}>
+          {loading ? 'Loading...' : `${jobs.length} job${jobs.length === 1 ? '' : 's'} found`}
+        </Text>
+      </View>
+
+      {loading ? (
+        <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#2563eb" />
+          <Text style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>Loading companies...</Text>
+        </View>
+      ) : fetchError ? (
+        <View style={{ paddingVertical: 40, alignItems: 'center', paddingHorizontal: 20 }}>
+          <Text style={[propertyListStyles.noPropertiesText, { color: '#dc2626' }]}>
+            Couldn't load companies
+          </Text>
+          <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
+            Make sure your backend server is running and database is reachable.
+          </Text>
+          <TouchableOpacity
+            style={{
+              marginTop: 16,
+              paddingVertical: 10,
+              paddingHorizontal: 20,
+              backgroundColor: '#2563eb',
+              borderRadius: 8,
+            }}
+            onPress={() => fetchData()}
+          >
+            <Text style={{ color: 'white', fontWeight: '600' }}>Retry</Text>
+          </TouchableOpacity>
+        </View>
+      ) : jobs.length === 0 ? (
+        <View style={{ paddingVertical: 40, alignItems: 'center', paddingHorizontal: 20 }}>
+          <Text style={propertyListStyles.noPropertiesText}>No companies hiring right now</Text>
+          <Text style={{ fontSize: 13, color: '#9ca3af', textAlign: 'center', marginTop: 8 }}>
+            Check back later for new job openings in your area.
+          </Text>
+        </View>
+      ) : null}
     </View>
   );
 
@@ -371,8 +426,8 @@ export default function JobSeeker() {
     >
       <Header />
       <TenantPageHeader
-        title="Job Listings"
-        subtitle="Browse available jobs in your area"
+        title="Job Seekers"
+        subtitle="Browse companies and join a job"
       />
       <FlatList
         data={jobs}

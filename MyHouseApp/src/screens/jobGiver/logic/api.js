@@ -83,8 +83,11 @@ export const saveJobGiverStep3 = async (data) => {
   }
 };
 
-export const getJobSeekers = async () => {
-  return handleFetchRequest(`${API_BASE_URL}/jobgiver/jobseekers`);
+export const getJobSeekers = async (jobGiverId = null) => {
+  const url = jobGiverId
+    ? `${API_BASE_URL}/jobgiver/jobseekers?jobGiverId=${encodeURIComponent(jobGiverId)}`
+    : `${API_BASE_URL}/jobgiver/jobseekers`;
+  return handleFetchRequest(url);
 };
 
 export const getJobSeekerDetails = async (jobSeekerId) => {

@@ -96,43 +96,42 @@ export default function JobSeekerProfileForm() {
     React.useCallback(() => {
       const loadProfile = async () => {
         try {
-          // Try to load from database via API first
-          let loaded = null;
           const userDetailsRaw = await AsyncStorage.getItem("userDetails");
           const userDetails = userDetailsRaw ? JSON.parse(userDetailsRaw) : null;
           const signupId = userDetails?.id || userDetails?.signupId;
+
+          let prefilledName = "";
+
           const query = {};
           if (signupId) query.signupId = signupId;
           try {
-            loaded = await getJobSeekerProfile(query);
+            const loaded = await getJobSeekerProfile(query);
+            if (loaded && typeof loaded === "object" && loaded.name) {
+              prefilledName = loaded.name;
+            }
           } catch (_err) {
-            loaded = null;
+            // ignore
           }
 
-          if (loaded && typeof loaded === "object") {
-            setFormData((prev) => ({ ...prev, ...loaded }));
-          } else {
-            // Fallback: try to load from AsyncStorage if available
+          if (!prefilledName) {
             const stored = await AsyncStorage.getItem("jobSeekerProfile");
             if (stored) {
               const parsed = JSON.parse(stored);
-              setFormData((prev) => ({ ...prev, ...parsed }));
+              if (parsed.name) {
+                prefilledName = parsed.name;
+              }
             }
           }
 
-          // Prefill name from userDetails if still empty
-          if (!String(formData.name || "").trim() && userDetails?.name) {
-            setFormData((prev) => ({
-              ...prev,
-              name: prev.name || userDetails.name,
-              signupId: prev.signupId || signupId || null,
-            }));
-          } else if (signupId) {
-            setFormData((prev) => ({
-              ...prev,
-              signupId: prev.signupId || signupId,
-            }));
+          if (!prefilledName && userDetails?.name) {
+            prefilledName = userDetails.name;
           }
+
+          setFormData({
+            ...initialProfileData,
+            name: prefilledName,
+            signupId: signupId || null,
+          });
         } catch (err) {
           console.error("[JobSeekerProfileForm] Failed to load profile:", err);
         }

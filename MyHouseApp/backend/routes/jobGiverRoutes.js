@@ -158,13 +158,23 @@ router.get('/jobgiver/debug/columns', async (req, res) => {
   }
 });
 
-// Get all job seekers for job giver
+// Get all job seekers for job giver (optionally filtered by jobGiverId)
 router.get('/jobgiver/jobseekers', async (req, res) => {
   try {
-    const sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area, jd.city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id ORDER BY js.created_at DESC`;
-    const [rows] = await pool.execute(sql);
+    const { jobGiverId } = req.query;
     
-    // Convert snake_case to camelCase
+    let sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area, jd.city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id`;
+    const params = [];
+    
+    if (jobGiverId) {
+      sql += ` WHERE js.job_giver_job_id = ?`;
+      params.push(jobGiverId);
+    }
+    
+    sql += ` ORDER BY js.created_at DESC`;
+    
+    const [rows] = await pool.execute(sql, params);
+    
     const convertKeysToCamelCase = (obj) => {
       return Object.keys(obj).reduce((result, key) => {
         const camelKey = key.replace(/_([a-z])/g, (g) => g[1].toUpperCase());

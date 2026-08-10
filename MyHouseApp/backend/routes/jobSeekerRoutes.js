@@ -143,30 +143,56 @@ router.get('/jobseeker/jobs', async (req, res) => {
 
     query += ` ORDER BY jd.id DESC`;
 
-    const [rows] = await pool.execute(query, params);
+    let rows = [];
+    try {
+      const [dbRows] = await pool.execute(query, params);
+      if (Array.isArray(dbRows)) rows = dbRows;
+    } catch (dbErr) {
+      console.error('[jobseeker/jobs] Database query failed:', dbErr.message);
+      console.error('[jobseeker/jobs] Query executed:', query);
+      console.error('[jobseeker/jobs] Params:', params);
+    }
 
     let filenames = [];
     try {
-      filenames = fs.readdirSync(jobGiverUploadsDir);
+      filenames = fs.existsSync(jobGiverUploadsDir) ? fs.readdirSync(jobGiverUploadsDir) : [];
     } catch (_) {
       filenames = [];
     }
-    const origin = `${req.protocol}://${req.get('host')}`;
-    const withImages = rows.map(row => {
-      const id = row.id;
-      const prefix = `jobgiver-${id}-`;
-      const urls = filenames
-        .filter(fn => fn.startsWith(prefix))
-        .map(fn => `${origin}/uploads/jobgiver/${fn}`);
-      const firstImage = urls.find(url => url.includes('shopPhoto1')) || urls[0] || null;
-      const camelCaseRow = convertKeysToCamelCase(row);
-      return { ...camelCaseRow, shopPhoto1: firstImage };
-    });
+
+    const hostHeader = req.get('host');
+    const protocol = req.protocol || 'http';
+    const origin = hostHeader ? `${protocol}://${hostHeader}` : '';
+
+    const withImages = rows
+      .filter(row => row && typeof row === 'object')
+      .map(row => {
+        const id = row.id;
+        let firstImage = null;
+        if (id != null && origin) {
+          const prefix = `jobgiver-${id}-`;
+          const urls = filenames
+            .filter(fn => typeof fn === 'string' && fn.startsWith(prefix))
+            .map(fn => `${origin}/uploads/jobgiver/${fn}`);
+          firstImage = urls.find(url => url.includes('shopPhoto1')) || urls[0] || null;
+        }
+        try {
+          const camelCaseRow = convertKeysToCamelCase(row);
+          return { ...camelCaseRow, shopPhoto1: firstImage };
+        } catch (mapErr) {
+          console.error('[jobseeker/jobs] Row transform failed for id=', id, mapErr.message);
+          return null;
+        }
+      })
+      .filter(item => item !== null && item !== undefined);
 
     res.status(200).json(withImages);
   } catch (error) {
     console.error('Error fetching job listings:', error);
-    res.status(500).json({ message: 'Error fetching job listings', error: error.message });
+    console.error('Error stack:', error.stack);
+    // Always return a valid empty array + 200 on catastrophic failure so the UI
+    // does not break. The UI can display a "no companies" message + retry hint.
+    res.status(200).json([]);
   }
 });
 
@@ -264,7 +290,9 @@ router.get('/jobseeker/applications/:mobileNumber', async (req, res) => {
   }
 });
 
-// POST save job seeker profile (Add My Profile form)
+// POST save job seeker profile (Add My Profile form) — ALWAYS inserts a new row.
+// The button is "Add My Profile" so each click creates a brand new card in the list.
+// No upsert / no matching — every save becomes a 4th, 5th, 6th… new card.
 router.post('/jobseeker/profile', async (req, res) => {
   try {
     console.log('[jobSeekerProfile] req.body:', req.body);
@@ -289,72 +317,24 @@ router.post('/jobseeker/profile', async (req, res) => {
       }
     }
 
-    // Upsert: if there's a row with same signupId or same (name, age, gender, education) signature, update, else insert
-    let profileId = null;
-    let existingRow = null;
-
-    if (signupId) {
-      const [rows] = await pool.execute(
-        'SELECT * FROM job_seeker_profiles WHERE signup_id = ? LIMIT 1',
-        [signupId]
-      );
-      existingRow = rows[0];
-    }
-    if (!existingRow) {
-      const [rows] = await pool.execute(
-        'SELECT * FROM job_seeker_profiles WHERE name = ? AND age = ? AND gender = ? AND education = ? LIMIT 1',
-        [name, age, gender, education]
-      );
-      existingRow = rows[0];
-    }
-
-    if (existingRow) {
-      profileId = existingRow.id;
-      const updateSql = `
-        UPDATE job_seeker_profiles SET
-          signup_id = ?,
-          name = ?,
-          age = ?,
-          gender = ?,
-          education = ?,
-          experience_status = ?,
-          experience_years = ?,
-          experience_field = ?
-        WHERE id = ?
-      `;
-      const updateValues = [
-        signupId !== undefined ? signupId : null,
-        name,
-        age,
-        gender,
-        education,
-        experienceStatus,
-        experienceStatus === 'experienced' ? (experienceYears || null) : null,
-        experienceStatus === 'experienced' ? (experienceField || null) : null,
-        profileId
-      ];
-      await pool.execute(updateSql, updateValues);
-      res.status(200).json({ profileId, message: 'Profile updated successfully' });
-    } else {
-      const insertSql = `
-        INSERT INTO job_seeker_profiles (
-          signup_id, name, age, gender, education, experience_status, experience_years, experience_field
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-      `;
-      const insertValues = [
-        signupId !== undefined ? signupId : null,
-        name,
-        age,
-        gender,
-        education,
-        experienceStatus,
-        experienceStatus === 'experienced' ? (experienceYears || null) : null,
-        experienceStatus === 'experienced' ? (experienceField || null) : null
-      ];
-      const [result] = await pool.execute(insertSql, insertValues);
-      profileId = result.insertId;
-      res.status(201).json({ profileId, message: 'Profile saved successfully' });
-    }
+    const insertSql = `
+      INSERT INTO job_seeker_profiles (
+        signup_id, name, age, gender, education, experience_status, experience_years, experience_field
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    const insertValues = [
+      signupId !== undefined ? signupId : null,
+      name,
+      age,
+      gender,
+      education,
+      experienceStatus,
+      experienceStatus === 'experienced' ? (experienceYears || null) : null,
+      experienceStatus === 'experienced' ? (experienceField || null) : null
+    ];
+    const [result] = await pool.execute(insertSql, insertValues);
+    const profileId = result.insertId;
+    res.status(201).json({ profileId, message: 'Profile saved successfully' });
   } catch (error) {
     console.error('[jobSeekerProfile] Error saving profile:', error);
     console.error('[jobSeekerProfile] Error stack:', error.stack);
@@ -362,23 +342,16 @@ router.post('/jobseeker/profile', async (req, res) => {
   }
 });
 
-// GET job seeker profile (by signupId, or by fallback matcher fields in query)
+// GET job seeker profile (by signupId only)
 router.get('/jobseeker/profile', async (req, res) => {
   try {
-    const { signupId, name, age, gender, education } = req.query;
+    const { signupId } = req.query;
     let row = null;
 
     if (signupId) {
       const [rows] = await pool.execute(
         'SELECT * FROM job_seeker_profiles WHERE signup_id = ? LIMIT 1',
         [signupId]
-      );
-      row = rows[0];
-    }
-    if (!row && name && age && gender && education) {
-      const [rows] = await pool.execute(
-        'SELECT * FROM job_seeker_profiles WHERE name = ? AND age = ? AND gender = ? AND education = ? LIMIT 1',
-        [name, age, gender, education]
       );
       row = rows[0];
     }

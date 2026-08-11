@@ -20,10 +20,10 @@ const ageOptions = [
 
 const educationOptions = [
   { label: "Any", value: "any" },
-  { label: "10th", value: "10th" },
-  { label: "12th", value: "12th" },
+  { label: "10th/12th", value: "10th/12th" },
   { label: "UG", value: "ug" },
   { label: "PG", value: "pg" },
+  { label: "Diploma", value: "diploma" },
 ];
 
 const employmentTypeOptions = [
@@ -32,10 +32,10 @@ const employmentTypeOptions = [
 ];
 
 const experienceYearOptions = [
-  { label: "Fresh", value: "fresh" },
+  { label: "Any", value: "any" },
+  { label: "Fresher", value: "fresher" },
   { label: "1 Year", value: "1year" },
-  { label: "2 Years", value: "2years" },
-  { label: "3+ Years", value: "3plus" },
+  { label: "2+ Year", value: "2plus" },
 ];
 
 const Step2JobDetails = ({ formData, handleInputChange, colors, dark }) => {
@@ -115,7 +115,7 @@ const Step2JobDetails = ({ formData, handleInputChange, colors, dark }) => {
         dark={dark}
         collapsible
       />
-      {formData.experienceYear !== "fresh" && (
+      {formData.experienceYear !== "fresh" && formData.experienceYear !== "fresher" && formData.experienceYear !== "any" && (
         <OwnerFormField
           label="Experience Field *"
           value={formData.experienceField}

@@ -15,6 +15,14 @@ const shopTypeOptions = [
   { label: "Other", value: "other" },
 ];
 
+const areaOptions = [
+  { label: "Vandigate", value: "vandigate" },
+  { label: "Ammapettai", value: "ammapettai" },
+  { label: "Omakulam", value: "omakulam" },
+  { label: "Anamalai Nagar", value: "anamalai nagar" },
+  { label: "Chidambaram Town", value: "chidambaram town" },
+];
+
 const Step1ShopDetails = ({ formData, handleInputChange, colors, dark }) => (
   <OwnerFormCard
     title="Personal Info"
@@ -45,12 +53,14 @@ const Step1ShopDetails = ({ formData, handleInputChange, colors, dark }) => (
       dark={dark}
       collapsible
     />
-    <OwnerFormField
+    <OptionSelectField
       label="Area *"
-      value={formData.area}
-      onChangeText={(value) => handleInputChange("area", value)}
+      options={areaOptions}
+      selectedValue={formData.area || ""}
+      onSelect={(value) => handleInputChange("area", value)}
       colors={colors}
       dark={dark}
+      collapsible
     />
     <OwnerFormField
       label="City *"

@@ -11,6 +11,7 @@ import { useTheme } from '../../context/ThemeContext';
 import { getJobSeekers } from './logic/api';
 import { getOwnerFormThemeColors } from '../../styles/ownerFormStyles';
 import TenantFilterPanel from '../../shared/components/TenantFilterPanel';
+import { getTimeAgo } from '../../shared/utils/timeUtils.js';
 
 const capitalize = (str) => {
   if (!str) return "";
@@ -33,12 +34,10 @@ const GENDER_FILTER_OPTIONS = [
 
 const EDUCATION_FILTER_OPTIONS = [
   { label: "Any", value: "" },
-  { label: "10th", value: "10th" },
-  { label: "12th", value: "12th" },
+  { label: "10th/12th", value: "10th/12th" },
   { label: "UG", value: "ug" },
   { label: "PG", value: "pg" },
   { label: "Diploma", value: "diploma" },
-  { label: "Other", value: "other" },
 ];
 
 const EXPERIENCE_FILTER_OPTIONS = [
@@ -80,7 +79,7 @@ const getGenderLabel = (value) => {
 const getEducationLabel = (value) => {
   if (!value) return '';
   const found = EDUCATION_FILTER_OPTIONS.find(o => o.value === value);
-  return found ? found.label : '';
+  return found ? found.label : value;
 };
 
 const getExperienceLabel = (value) => {
@@ -89,30 +88,24 @@ const getExperienceLabel = (value) => {
   return found ? found.label : '';
 };
 
-const getStatusColor = (status) => {
-  if (status === 'accepted') return '#27ae60';
-  if (status === 'declined') return '#e74c3c';
-  return '#f39c12';
-};
-
 const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
   if (!profile) return null;
   const { colors } = tps;
-  const isExperienced = String(profile.experience || '').toLowerCase() === 'experienced';
+  const isExperienced = String(profile.experience || profile.experienceStatus || '').toLowerCase() === 'experienced';
   const experienceLabel = isExperienced ? 'Experienced' : 'Fresher';
   const experienceColor = isExperienced ? '#92400e' : '#166534';
-  const statusColor = profile.status ? getStatusColor(profile.status) : null;
+  const postedAgoText = getTimeAgo(profile.createdAt || profile.created_at);
 
   return (
     <View style={tps.card}>
-      <View style={{ flexDirection: 'column', alignItems: 'center', width: 120, minWidth: 120 }}>
+      <View style={{ flexDirection: 'column', alignItems: 'center', justifyContent: 'space-between', width: 120, minWidth: 120 }}>
         <View
           style={[propertyListStyles.imagePlaceholder, { justifyContent: 'center', alignItems: 'center', backgroundColor: dark ? '#374151' : '#eff6ff', marginRight: 0 }]}
         >
           <Text style={{ fontSize: 40 }}>👤</Text>
         </View>
         <Text style={{ marginTop: 8, fontSize: 10, fontWeight: '500', color: colors.subText, textAlign: 'center' }}>
-          {profile.age} yrs • {capitalize(profile.gender)}
+          Posted {postedAgoText}
         </Text>
       </View>
 
@@ -120,6 +113,12 @@ const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
         <Text style={[propertyListStyles.location, { color: colors.text }]}>
           {profile.fullName || profile.name}
         </Text>
+
+        {!!profile.age && (
+          <Text style={{ fontSize: 13, color: colors.subText, marginTop: 2, fontWeight: '500' }}>
+            {profile.age} yrs
+          </Text>
+        )}
 
         <View style={tps.propertyInfo}>
           <Text style={[propertyListStyles.bedroomsText, { color: colors.text }]}>
@@ -130,20 +129,7 @@ const ProfileCard = ({ profile, onViewDetails, tps, dark }) => {
           </Text>
         </View>
 
-        {profile.status && (
-          <View style={{ marginTop: 6 }}>
-            <Text style={{
-              fontSize: 11,
-              fontWeight: '600',
-              color: statusColor,
-              textTransform: 'capitalize'
-            }}>
-              Status: {profile.status}
-            </Text>
-          </View>
-        )}
-
-        <View style={{ alignItems: 'flex-end', marginTop: 4 }}>
+        <View style={{ alignItems: 'flex-end', marginTop: 8 }}>
           <TouchableOpacity onPress={() => onViewDetails(profile)}>
             <Text style={[propertyListStyles.viewMoreText, { color: colors.primary, textAlign: 'right' }]}>View Details →</Text>
           </TouchableOpacity>
@@ -220,10 +206,17 @@ export default function JobGiverJobSeekers() {
       result = result.filter(p => String(p.gender || '').toLowerCase() === String(genderFilter).toLowerCase());
     }
     if (educationFilter) {
-      result = result.filter(p => String(p.education || '').toLowerCase() === String(educationFilter).toLowerCase());
+      result = result.filter(p => {
+        const edu = String(p.education || '').toLowerCase();
+        const filterEdu = educationFilter.toLowerCase();
+        if (filterEdu === '10th/12th') {
+          return edu === '10th' || edu === '12th' || edu === '10th/12th';
+        }
+        return edu === filterEdu;
+      });
     }
     if (experienceFilter) {
-      result = result.filter(p => String(p.experience || '').toLowerCase() === String(experienceFilter).toLowerCase());
+      result = result.filter(p => String(p.experience || p.experienceStatus || '').toLowerCase() === String(experienceFilter).toLowerCase());
     }
     setFilteredApplicants(result);
   }, [applicants, ageFilter, genderFilter, educationFilter, experienceFilter]);

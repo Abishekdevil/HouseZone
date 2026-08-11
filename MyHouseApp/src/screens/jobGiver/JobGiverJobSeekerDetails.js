@@ -60,12 +60,6 @@ export default function JobGiverJobSeekerDetails({ route }) {
     }
   };
 
-  const getStatusColor = () => {
-    if (jobSeeker?.status === 'accepted') return '#27ae60';
-    if (jobSeeker?.status === 'declined') return '#e74c3c';
-    return '#f39c12';
-  };
-
   if (loading) {
     return (
       <View style={tps.screen}>
@@ -107,41 +101,6 @@ export default function JobGiverJobSeekerDetails({ route }) {
           contentContainerStyle={[propertyDetailsStyles.scrollContentContainer, { paddingTop: 12 }]}
           nestedScrollEnabled
         >
-          {jobSeeker.status && (
-            <View style={{ 
-              marginVertical: 12, 
-              padding: 12, 
-              backgroundColor: getStatusColor() + '20',
-              borderRadius: 12,
-              alignItems: 'center'
-            }}>
-              <Text style={{ 
-                color: getStatusColor(), 
-                fontWeight: 'bold', 
-                fontSize: 16,
-                textTransform: 'capitalize'
-              }}>
-                Status: {jobSeeker.status}
-              </Text>
-            </View>
-          )}
-          {jobSeeker.shopName && (
-            <View style={tps.section}>
-              <Text style={tps.sectionTitle}>Applied to</Text>
-              <View style={tps.firstDetailRow}>
-                <Text style={tps.label}>Company Name</Text>
-                <Text style={tps.value}>{jobSeeker.shopName}</Text>
-              </View>
-              <View style={tps.detailRow}>
-                <Text style={tps.label}>Company Type</Text>
-                <Text style={tps.value}>{jobSeeker.shopType}</Text>
-              </View>
-              <View style={tps.detailRow}>
-                <Text style={tps.label}>Location</Text>
-                <Text style={tps.value}>{jobSeeker.area}, {jobSeeker.city}</Text>
-              </View>
-            </View>
-          )}
           {/* Personal Info Section */}
           <View style={tps.section}>
             <Text style={tps.sectionTitle}>Personal Information</Text>

@@ -14,9 +14,7 @@ const salaryOptions = [
 ];
 
 const PHOTO_FIELDS = [
-  { key: "shopPhoto1", label: "Shop Photo 1 *", required: true },
-  { key: "shopPhoto2", label: "Shop Photo 2", required: false },
-  { key: "shopPhoto3", label: "Shop Photo 3", required: false },
+  { key: "shopPhoto1", label: "Shop Photo *", required: true },
 ];
 
 const Step3ShopPhotos = ({ formData, handleInputChange, colors, dark }) => {

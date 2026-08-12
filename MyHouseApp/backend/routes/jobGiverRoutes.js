@@ -163,7 +163,7 @@ router.get('/jobgiver/jobseekers', async (req, res) => {
   try {
     const { jobGiverId } = req.query;
     
-    let sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area, jd.city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id`;
+    let sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area AS shop_area, jd.city AS shop_city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id`;
     const params = [];
     
     if (jobGiverId) {
@@ -195,7 +195,7 @@ router.get('/jobgiver/jobseekers', async (req, res) => {
 router.get('/jobgiver/jobseekers/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area, jd.city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id WHERE js.id = ?`;
+    const sql = `SELECT js.*, jd.shop_name, jd.shop_type, jd.area AS shop_area, jd.city AS shop_city FROM jobseeker js LEFT JOIN jobgiverdet jd ON js.job_giver_job_id = jd.id WHERE js.id = ?`;
     const [rows] = await pool.execute(sql, [id]);
     
     if (rows.length === 0) {

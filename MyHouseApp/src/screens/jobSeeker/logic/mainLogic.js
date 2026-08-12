@@ -4,6 +4,9 @@ export const initialFormData = {
   mobileNumber: "",
   age: "",
   gender: "",
+  area: "",
+  city: "",
+  contactNo: "",
   aadharNumber: "",
   profilePicture: "",
   // Step 2: Job Related Details

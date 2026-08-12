@@ -44,13 +44,19 @@ const validateStep2 = (formData) => {
   const required = ["jobTitle", "employmentType", "age", "gender", "education", "experienceYear", "workStartTime", "workEndTime"];
   for (const field of required) {
     if (!String(formData[field] || "").trim()) {
-      Alert.alert("Validation Error", `Please fill in all required fields in Page 2.`);
+      Alert.alert("Validation Error", "Please fill in all required fields in Page 2.");
       return false;
     }
   }
-  // Only require experienceField if experienceYear is not "fresh"
-  if (formData.experienceYear !== "fresh" && !String(formData.experienceField || "").trim()) {
-    Alert.alert("Validation Error", "Please fill in all required fields in Page 2.");
+  // Only require experienceField if experienceYear requires specific field details (not "fresh", "fresher", or "any")
+  const isExperienced =
+    formData.experienceYear &&
+    formData.experienceYear !== "fresh" &&
+    formData.experienceYear !== "fresher" &&
+    formData.experienceYear !== "any";
+
+  if (isExperienced && !String(formData.experienceField || "").trim()) {
+    Alert.alert("Validation Error", "Please enter your Experience Field in Page 2.");
     return false;
   }
   return true;
@@ -144,7 +150,7 @@ export default function AddJobGiver() {
         gender: formData.gender,
         education: formData.education,
         experienceYear: formData.experienceYear,
-        experienceField: formData.experienceField,
+        experienceField: formData.experienceField || 'N/A',
         workingTimeStart: formData.workStartTime,
         workingTimeEnd: formData.workEndTime,
       };

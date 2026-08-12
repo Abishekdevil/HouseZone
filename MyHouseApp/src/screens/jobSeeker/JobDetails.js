@@ -102,16 +102,16 @@ export default function JobDetails({ route }) {
             <Text style={tps.value}>{job?.shopName || 'N/A'}</Text>
           </View>
           <View style={tps.detailRow}>
+            <Text style={tps.label}>Company Type</Text>
+            <Text style={tps.value}>{job?.shopType || 'N/A'}</Text>
+          </View>
+          <View style={tps.detailRow}>
             <Text style={tps.label}>Job Title</Text>
             <Text style={[tps.value, { color: '#3b82f6', fontWeight: '700' }]}>{job?.jobTitle || 'N/A'}</Text>
           </View>
           <View style={tps.detailRow}>
             <Text style={tps.label}>Employment Type</Text>
             <Text style={tps.value}>{job?.employmentType || 'N/A'}</Text>
-          </View>
-          <View style={tps.detailRow}>
-            <Text style={tps.label}>Company Type</Text>
-            <Text style={tps.value}>{job?.shopType || 'N/A'}</Text>
           </View>
           <View style={tps.detailRow}>
             <Text style={tps.label}>Area</Text>

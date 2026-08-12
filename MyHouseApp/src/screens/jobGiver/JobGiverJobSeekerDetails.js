@@ -116,9 +116,21 @@ export default function JobGiverJobSeekerDetails({ route }) {
               <Text style={tps.label}>Gender</Text>
               <Text style={tps.value}>{jobSeeker.gender || 'N/A'}</Text>
             </View>
+            {jobSeeker.area && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Area</Text>
+                <Text style={tps.value}>{jobSeeker.area}</Text>
+              </View>
+            )}
+            {jobSeeker.city && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Town / City</Text>
+                <Text style={tps.value}>{jobSeeker.city}</Text>
+              </View>
+            )}
             <View style={tps.detailRow}>
-              <Text style={tps.label}>Mobile Number</Text>
-              <Text style={tps.value}>{jobSeeker.mobileNumber || 'N/A'}</Text>
+              <Text style={tps.label}>Contact No</Text>
+              <Text style={tps.value}>{jobSeeker.contactNo || jobSeeker.mobileNumber || 'N/A'}</Text>
             </View>
             {jobSeeker.aadharNumber && (
               <View style={tps.detailRow}>

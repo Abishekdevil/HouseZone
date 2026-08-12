@@ -63,6 +63,44 @@ const repairJobSeekerProfileColumns = async () => {
   }
 };
 
+const JOB_SEEKER_EXPECTED_COLUMNS = [
+  {
+    name: 'area',
+    alter: 'ALTER TABLE jobseeker ADD COLUMN area VARCHAR(255) NULL AFTER gender'
+  },
+  {
+    name: 'city',
+    alter: 'ALTER TABLE jobseeker ADD COLUMN city VARCHAR(255) NULL AFTER area'
+  },
+  {
+    name: 'contact_no',
+    alter: 'ALTER TABLE jobseeker ADD COLUMN contact_no VARCHAR(15) NULL AFTER city'
+  },
+];
+
+let jobSeekerColumnsRepaired = false;
+const repairJobSeekerColumns = async () => {
+  if (jobSeekerColumnsRepaired) return;
+  let doneSomething = false;
+  for (const col of JOB_SEEKER_EXPECTED_COLUMNS) {
+    try {
+      await pool.execute(col.alter);
+      console.log(`[jobseeker][repair] Added missing column: ${col.name}`);
+      doneSomething = true;
+    } catch (err) {
+      if (err?.code === 'ER_DUP_FIELDNAME') {
+        // already present
+      } else {
+        console.warn(`[jobseeker][repair] Could not ensure column ${col.name}:`, err.message);
+      }
+    }
+  }
+  jobSeekerColumnsRepaired = true;
+  if (doneSomething) {
+    console.log('[jobseeker][repair] Column repair finished.');
+  }
+};
+
 // Helper function to convert snake_case to camelCase
 const toCamelCase = (str) => str.replace(/_([a-z])/g, (g) => g[1].toUpperCase());
 
@@ -88,6 +126,9 @@ router.post('/jobseeker', async (req, res) => {
       mobileNumber,
       age,
       gender,
+      area,
+      city,
+      contactNo,
       aadharNumber,
       profilePicture,
       experience,
@@ -106,6 +147,9 @@ router.post('/jobseeker', async (req, res) => {
       mobileNumber,
       age,
       gender,
+      area !== undefined ? area : null,
+      city !== undefined ? city : null,
+      contactNo !== undefined ? contactNo : null,
       aadharNumber !== undefined ? aadharNumber : null,
       profilePicture !== undefined ? profilePicture : null,
       experience,
@@ -119,11 +163,24 @@ router.post('/jobseeker', async (req, res) => {
     ];
 
     console.log('Inserting into jobseeker with values:', values);
-    const sql = `INSERT INTO jobseeker (full_name, mobile_number, age, gender, aadhar_number, profile_picture, experience, education, experience_years, last_working_shop, add_experience, can_join_immediately, preferred_employment_type, job_giver_job_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
-    const [result] = await pool.execute(sql, values);
-    console.log('Insert result:', result);
+    const insertSql = `INSERT INTO jobseeker (full_name, mobile_number, age, gender, area, city, contact_no, aadhar_number, profile_picture, experience, education, experience_years, last_working_shop, add_experience, can_join_immediately, preferred_employment_type, job_giver_job_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    res.status(201).json({ jobSeekerId: result.insertId, message: 'Job seeker data saved successfully' });
+    let insertResult;
+    try {
+      [insertResult] = await pool.execute(insertSql, values);
+    } catch (insertErr) {
+      if (insertErr?.code === 'ER_BAD_FIELD_ERROR') {
+        console.warn('[jobseeker] Missing columns detected. Running on-demand repair...');
+        await repairJobSeekerColumns();
+        console.log('[jobseeker] Retrying INSERT after repair...');
+        [insertResult] = await pool.execute(insertSql, values);
+      } else {
+        throw insertErr;
+      }
+    }
+    console.log('Insert result:', insertResult);
+
+    res.status(201).json({ jobSeekerId: insertResult.insertId, message: 'Job seeker data saved successfully' });
   } catch (error) {
     console.error('Error saving job seeker data:', error);
     console.error('Error stack:', error.stack);

@@ -5,6 +5,7 @@ import Header from '../../components/Header';
 import Footer from '../../components/Footer';
 import { getTenantPageStyles } from '../../styles/tenantPageStyles';
 import TenantPageHeader from '../../shared/components/TenantPageHeader';
+import { useTheme } from '../../context/ThemeContext';
 import { getJobSeekerProfileById } from '../jobSeeker/logic/api';
 
 const capitalize = (str) => {
@@ -28,7 +29,8 @@ const formatExperienceYears = (val) => {
 export default function JobSeekerProfileDetails() {
   const navigation = useNavigation();
   const route = useRoute();
-  const tps = getTenantPageStyles(false);
+  const { dark } = useTheme();
+  const tps = getTenantPageStyles(dark);
   const { profileId } = route.params || {};
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,19 +56,12 @@ export default function JobSeekerProfileDetails() {
     fetchProfile();
   }, [profileId]);
 
-  const renderField = (label, value) => (
-    <View style={{ marginBottom: 14, paddingBottom: 14, borderBottomColor: '#f0f0f0', borderBottomWidth: 1 }}>
-      <Text style={{ color: '#666', fontSize: 13, marginBottom: 4 }}>{label}</Text>
-      <Text style={{ color: '#111', fontSize: 16, fontWeight: '600' }}>{value || "-"}</Text>
-    </View>
-  );
-
   const handleComeToInterview = () => {
     const name = profile?.name || "The candidate";
     Alert.alert(
       "Interview Confirmed",
       `${name} has been marked to come for an interview. You can contact them on ${profile?.phoneNumber || 'their number'} to schedule.`,
-      [{ text: "OK" }]
+      [{ text: "OK", onPress: () => navigation.navigate("JobGiver") }]
     );
   };
 
@@ -74,9 +69,10 @@ export default function JobSeekerProfileDetails() {
     return (
       <View style={tps.screen}>
         <Header />
+        <TenantPageHeader title="Job Seeker Profile" subtitle="Loading..." />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#2563eb" />
-          <Text style={{ marginTop: 12, color: '#555' }}>Loading profile...</Text>
+          <Text style={tps.loadingText}>Loading profile...</Text>
         </View>
         <Footer />
       </View>
@@ -87,13 +83,14 @@ export default function JobSeekerProfileDetails() {
     return (
       <View style={tps.screen}>
         <Header />
+        <TenantPageHeader title="Job Seeker Profile" subtitle="Not found" />
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
           <Text style={{ fontSize: 18, color: '#555', marginBottom: 20, textAlign: 'center' }}>Profile not found</Text>
           <TouchableOpacity
-            style={{ backgroundColor: '#2563eb', paddingHorizontal: 24, paddingVertical: 12, borderRadius: 8 }}
+            style={tps.btnPrimary}
             onPress={() => navigation.goBack()}
           >
-            <Text style={{ color: '#fff', fontWeight: '600' }}>Go Back</Text>
+            <Text style={tps.btnText}>Go Back</Text>
           </TouchableOpacity>
         </View>
         <Footer />
@@ -105,80 +102,114 @@ export default function JobSeekerProfileDetails() {
     <View style={tps.screen}>
       <Header />
       <TenantPageHeader
-        title="Job Seeker Profile"
-        subtitle="Detailed profile information"
+        title={profile.name || 'Job Seeker Profile'}
+        subtitle={profile.experienceStatus === 'experienced' ? 'Experienced Candidate' : 'Fresher Candidate'}
       />
-      <ScrollView contentContainerStyle={{ padding: 20 }}>
-        <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 20, shadowColor: '#000', shadowOpacity: 0.06, shadowRadius: 8, elevation: 3 }}>
-          <View style={{ backgroundColor: '#eff6ff', width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', marginBottom: 16 }}>
-            <Text style={{ fontSize: 30 }}>👤</Text>
+      <View style={{ flex: 1, paddingHorizontal: 16 }}>
+        <ScrollView
+          contentContainerStyle={{ paddingTop: 12, paddingBottom: 20 }}
+          nestedScrollEnabled
+        >
+          <View style={{ alignItems: 'center', marginBottom: 14 }}>
+            <View style={{ backgroundColor: dark ? '#374151' : '#eff6ff', width: 64, height: 64, borderRadius: 32, justifyContent: 'center', alignItems: 'center', marginBottom: 8 }}>
+              <Text style={{ fontSize: 30 }}>👤</Text>
+            </View>
+            <Text style={{ fontSize: 14, color: '#2563eb', fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+              {profile.experienceStatus === 'experienced' ? 'Experienced' : 'Fresher'}
+            </Text>
           </View>
-          <Text style={{ fontSize: 22, fontWeight: '700', color: '#111', textAlign: 'center', marginBottom: 4 }}>
-            {profile.name}
-          </Text>
-          <Text style={{ fontSize: 14, color: '#2563eb', fontWeight: '600', textAlign: 'center', marginBottom: 16, textTransform: 'uppercase', letterSpacing: 0.5 }}>
-            {profile.experienceStatus === 'experienced' ? 'Experienced' : 'Fresher'}
-          </Text>
 
-          <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 8, marginBottom: 14 }}>
-            Personal Details
-          </Text>
-          {renderField("Age", profile.age ? `${profile.age} years` : "")}
-          {renderField("Gender", capitalize(profile.gender))}
-          {renderField("Area", profile.area)}
-          {renderField("City/Town", profile.city)}
-          {renderField("Aadhar Number", profile.aadhar)}
-          {renderField("Phone Number", profile.phoneNumber)}
+          <View style={tps.section}>
+            <Text style={tps.sectionTitle}>Personal Details</Text>
+            <View style={tps.firstDetailRow}>
+              <Text style={tps.label}>Age</Text>
+              <Text style={tps.value}>{profile.age ? `${profile.age} years` : 'N/A'}</Text>
+            </View>
+            <View style={tps.detailRow}>
+              <Text style={tps.label}>Gender</Text>
+              <Text style={tps.value}>{capitalize(profile.gender) || 'N/A'}</Text>
+            </View>
+            {profile.area && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Area</Text>
+                <Text style={tps.value}>{profile.area}</Text>
+              </View>
+            )}
+            {profile.city && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>City / Town</Text>
+                <Text style={tps.value}>{profile.city}</Text>
+              </View>
+            )}
+            {profile.aadhar && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Aadhar Number</Text>
+                <Text style={tps.value}>{profile.aadhar}</Text>
+              </View>
+            )}
+            <View style={tps.detailRow}>
+              <Text style={tps.label}>Phone Number</Text>
+              <Text style={tps.value}>{profile.phoneNumber || 'N/A'}</Text>
+            </View>
+            {profile.createdAt && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Created On</Text>
+                <Text style={tps.value}>{new Date(profile.createdAt).toLocaleDateString()}</Text>
+              </View>
+            )}
+          </View>
 
-          <Text style={{ fontSize: 11, fontWeight: '600', color: '#64748b', textTransform: 'uppercase', letterSpacing: 0.6, marginTop: 8, marginBottom: 14 }}>
-            Educational Qualification
-          </Text>
-          {renderField("Education Qualification", capitalize(profile.education))}
-          {profile.experienceStatus === 'experienced' && (
-            <>
-              {renderField("Experience Status", "Experienced")}
-              {renderField("Experience Years", formatExperienceYears(profile.experienceYears))}
-              {renderField("Experience Field", profile.experienceField)}
-            </>
-          )}
-          {profile.experienceStatus !== 'experienced' && renderField("Experience Status", "Fresher")}
-          {renderField("Can Join Immediately", profile.canJoinImmediately ? capitalize(profile.canJoinImmediately) : "")}
+          <View style={tps.section}>
+            <Text style={tps.sectionTitle}>Educational Qualification</Text>
+            <View style={tps.firstDetailRow}>
+              <Text style={tps.label}>Education</Text>
+              <Text style={tps.value}>{capitalize(profile.education) || 'N/A'}</Text>
+            </View>
+            <View style={tps.detailRow}>
+              <Text style={tps.label}>Experience Status</Text>
+              <Text style={tps.value}>{profile.experienceStatus === 'experienced' ? 'Experienced' : 'Fresher'}</Text>
+            </View>
+            {profile.experienceStatus === 'experienced' && (
+              <>
+                {profile.experienceYears && (
+                  <View style={tps.detailRow}>
+                    <Text style={tps.label}>Experience Years</Text>
+                    <Text style={tps.value}>{formatExperienceYears(profile.experienceYears)}</Text>
+                  </View>
+                )}
+                {profile.experienceField && (
+                  <View style={tps.detailRow}>
+                    <Text style={tps.label}>Experience Field</Text>
+                    <Text style={tps.value}>{profile.experienceField}</Text>
+                  </View>
+                )}
+              </>
+            )}
+            {profile.canJoinImmediately && (
+              <View style={tps.detailRow}>
+                <Text style={tps.label}>Can Join Immediately</Text>
+                <Text style={tps.value}>{capitalize(profile.canJoinImmediately)}</Text>
+              </View>
+            )}
+          </View>
+        </ScrollView>
 
-          {renderField("Created On", profile.createdAt ? new Date(profile.createdAt).toLocaleDateString() : "")}
-        </View>
-
-        <View style={{ flexDirection: 'row', marginTop: 20 }}>
+        <View style={[tps.bottomBar, { paddingHorizontal: 0, paddingBottom: 12, flexDirection: 'row' }]}>
           <TouchableOpacity
-            style={{
-              flex: 1,
-              marginRight: 8,
-              paddingVertical: 14,
-              borderRadius: 10,
-              alignItems: 'center',
-              backgroundColor: '#ffffff',
-              borderWidth: 1.5,
-              borderColor: '#2563eb',
-            }}
+            style={[tps.btnOutline, { flex: 1, marginRight: 6 }]}
             onPress={() => navigation.goBack()}
           >
-            <Text style={{ color: '#2563eb', fontWeight: '700', fontSize: 16 }}>Back</Text>
+            <Text style={tps.btnOutlineText}>Back</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={{
-              flex: 1,
-              marginLeft: 8,
-              paddingVertical: 14,
-              borderRadius: 10,
-              alignItems: 'center',
-              backgroundColor: '#16a34a',
-            }}
+            style={[tps.btnPrimary, { flex: 1, marginLeft: 6, backgroundColor: '#16a34a' }]}
             onPress={handleComeToInterview}
           >
-            <Text style={{ color: '#ffffff', fontWeight: '700', fontSize: 16 }}>Come to Interview</Text>
+            <Text style={tps.btnText}>Come to Interview</Text>
           </TouchableOpacity>
         </View>
-      </ScrollView>
+      </View>
       <Footer />
     </View>
   );

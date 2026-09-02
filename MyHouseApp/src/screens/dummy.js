@@ -20,8 +20,8 @@ export default function Dummy() {
       <View style={styles.logoSection}>
         <View style={styles.logoContainer}>
           <View style={styles.logoCircle}>
-            <Text style={styles.logoTextCDM}>CDM</Text>
-            <Text style={styles.logoTextLifeHub}>LifeHub</Text>
+            <Text style={styles.logoTextRental}>Rental</Text>
+            <Text style={styles.logoTextApp}>App</Text>
           </View>
         </View>
       </View>
@@ -30,8 +30,8 @@ export default function Dummy() {
         <Text style={styles.primaryTagline}>Trusted By Thousands</Text>
         <Text style={styles.secondaryTagline}>Your Complete Rental & Job Platform</Text>
         <Text style={styles.brandName}>
-          <Text style={styles.cdmText}>CDM </Text>
-          <Text style={styles.lifeHubText}>LifeHub</Text>
+          <Text style={styles.rentalText}>Rental</Text>
+          <Text style={styles.appText}> App</Text>
         </Text>
       </View>
 
@@ -75,13 +75,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center"
   },
-  logoTextCDM: {
+  logoTextRental: {
     fontSize: 40,
     fontWeight: "900",
     color: "#ffffff",
     letterSpacing: 3
   },
-  logoTextLifeHub: {
+  logoTextApp: {
     fontSize: 20,
     fontWeight: "600",
     color: "#94a3b8",
@@ -106,12 +106,12 @@ const styles = StyleSheet.create({
   brandName: {
     marginTop: 10
   },
-  cdmText: {
+  rentalText: {
     fontSize: 34,
     fontWeight: "900",
     color: "#1e3a5f"
   },
-  lifeHubText: {
+  appText: {
     fontSize: 34,
     fontWeight: "700",
     color: "#3b82f6"
